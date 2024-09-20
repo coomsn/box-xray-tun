@@ -159,11 +159,11 @@
         "server_name": "m4.//.eu.org",
         "alpn": "h3",
         "min_version": "1.3",
-        "certificate_path": "/data/adb/box_lite/confs/certificate/accn.pem",
+        "certificate_path": "/data/adb/box_tun/confs/certificate/accn.pem",
         "ech": {
           "enabled": true,
           "pq_signature_schemes_enabled": true,
-          "config_path": "/data/adb/box_lite/confs/certificate/ech.config"
+          "config_path": "/data/adb/box_tun/confs/certificate/ech.config"
         }
       }
     },
@@ -184,11 +184,11 @@
         "server_name": "m5.//.eu.org",
         "alpn": "h3",
         "min_version": "1.3",
-        "certificate_path": "/data/adb/box_lite/confs/certificate/accn.pem",
+        "certificate_path": "/data/adb/box_tun/confs/certificate/accn.pem",
         "ech": {
           "enabled": true,
           "pq_signature_schemes_enabled": true,
-          "config_path": "/data/adb/box_lite/confs/certificate/ech.config"
+          "config_path": "/data/adb/box_tun/confs/certificate/ech.config"
         }
       }
     },
@@ -305,7 +305,7 @@
         "type": "remote",
         "tag": "geosite-facebook",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-facebook.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-facebook.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/facebook.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -314,7 +314,7 @@
         "type": "remote",
         "tag": "geosite-google",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-google.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-google.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/google.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -323,7 +323,7 @@
         "type": "remote",
         "tag": "geosite-google@cn",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-google@cn.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-google@cn.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/google@cn.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -332,7 +332,7 @@
         "type": "remote",
         "tag": "geosite-telegram",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-telegram.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-telegram.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/telegram.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -341,7 +341,7 @@
         "type": "remote",
         "tag": "geosite-twitter",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-twitter.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-twitter.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/twitter.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -350,7 +350,7 @@
         "type": "remote",
         "tag": "geosite-netflix",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-netflix.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-netflix.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/netflix.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -359,7 +359,7 @@
         "type": "remote",
         "tag": "geosite-tumblr",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-tumblr.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-tumblr.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/tumblr.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -368,7 +368,7 @@
         "type": "remote",
         "tag": "geosite-geolocation-!cn",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-geolocation-!cn.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-geolocation-!cn.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/geolocation-!cn.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -377,7 +377,7 @@
         "type": "remote",
         "tag": "geosite-steam",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-steam.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-steam.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/steam.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -386,7 +386,7 @@
         "type": "remote",
         "tag": "geosite-discord",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-discord.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-discord.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/discord.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -395,7 +395,7 @@
         "type": "remote",
         "tag": "geosite-openai",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-openai.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-openai.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/openai.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -404,7 +404,7 @@
         "type": "remote",
         "tag": "geosite-github",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-github.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-github.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/github.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -413,7 +413,7 @@
         "type": "remote",
         "tag": "geosite-microsoft",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-microsoft.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-microsoft.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/microsoft.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -422,7 +422,7 @@
         "type": "remote",
         "tag": "geosite-microsoft@cn",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-microsoft@cn.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-microsoft@cn.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/microsoft@cn.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -431,7 +431,7 @@
         "type": "remote",
         "tag": "geosite-category-ads-all",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-category-ads-all.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-category-ads-all.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/category-ads-all.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -440,7 +440,7 @@
         "type": "remote",
         "tag": "geosite-private",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-private.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-private.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/private.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -449,7 +449,7 @@
         "type": "remote",
         "tag": "geosite-youtube",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-youtube.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-youtube.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/youtube.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -458,7 +458,7 @@
         "type": "remote",
         "tag": "geosite-reddit",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-reddit.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-reddit.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/reddit.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -467,7 +467,7 @@
         "type": "remote",
         "tag": "geosite-bing",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-bing.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-bing.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/bing.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -476,7 +476,7 @@
         "type": "remote",
         "tag": "geosite-bing@cn",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-bing@cn.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-bing@cn.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/bing@cn.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -485,7 +485,7 @@
         "type": "remote",
         "tag": "geosite-cn",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-cn.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-cn.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/cn.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -494,7 +494,7 @@
         "type": "remote",
         "tag": "geosite-tld-cn",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-tld-cn.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-tld-cn.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/tld-cn.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -503,7 +503,7 @@
         "type": "remote",
         "tag": "geosite-netease",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-netease.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-netease.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/netease.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -512,7 +512,7 @@
         "type": "remote",
         "tag": "geosite-tencent",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-tencent.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-tencent.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/tencent.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -521,7 +521,7 @@
         "type": "remote",
         "tag": "geosite-geolocation-cn",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geosite-geolocation-cn.srs",
+        "path": "/data/adb/box_tun/confs/rules/geosite-geolocation-cn.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/geolocation-cn.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -530,7 +530,7 @@
         "type": "remote",
         "tag": "geoip-cn",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geoip-cn.srs",
+        "path": "/data/adb/box_tun/confs/rules/geoip-cn.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/cn.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -539,7 +539,7 @@
         "type": "remote",
         "tag": "geoip-tw",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geoip-tw.srs",
+        "path": "/data/adb/box_tun/confs/rules/geoip-tw.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/tw.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -548,7 +548,7 @@
         "type": "remote",
         "tag": "geoip-hk",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geoip-hk.srs",
+        "path": "/data/adb/box_tun/confs/rules/geoip-hk.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/hk.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -557,7 +557,7 @@
         "type": "remote",
         "tag": "geoip-telegram",
         "format": "binary",
-        "path": "/data/adb/box_lite/confs/rules/geoip-telegram.srs",
+        "path": "/data/adb/box_tun/confs/rules/geoip-telegram.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/telegram.srs",
         "download_detour": "m4_hys2",
         "update_interval": "24h0m0s"
@@ -570,7 +570,7 @@
   "outbound_providers": [
     {
       "type": "local",
-      "path": "/data/adb/box_lite/confs/providers/reality.txt",
+      "path": "/data/adb/box_tun/confs/providers/reality.txt",
       "tag": "Reality",
       "healthcheck_interval": "1h0m0s"
     }
@@ -581,7 +581,7 @@
     },
     "clash_api": {
       "external_controller": "0.0.0.0:9090",
-      "external_ui": "/data/adb/box_lite/board",
+      "external_ui": "/data/adb/box_tun/board",
       "external_ui_download_url": "https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip",
       "external_ui_download_detour": "m4_hys2"
     }
