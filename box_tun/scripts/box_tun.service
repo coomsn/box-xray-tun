@@ -139,19 +139,21 @@ forward() {
 } >> /dev/null 2>&1
 
 run_tun() {
-  stop_tun
+  stop_tun > /dev/null 2>&1
   chmod +x ${binary}
   chown root:net_admin ${binary}
   nohup ${binary} run -c ${config_file} -D ${parent_dir}/binary/ > /dev/null 2>&1 &
   ipv6_enable
   forward -I
+  pid=$(pidof sing-box 2>/dev/null)
+  [ -n "${pid}" ] && echo "${pid}" > "${scripts_dir}/pid"
 }
 
 stop_tun() {
-pid=$(pidof sing-box)
-  kill $pid
+  pid=$(pidof sing-box 2>/dev/null)
+  kill $pid > /dev/null 2>&1
   forward -D
   disable_ipv6
+  rm -rf ${scripts_dir}/pid
 }
-
 # 2024 9 20
