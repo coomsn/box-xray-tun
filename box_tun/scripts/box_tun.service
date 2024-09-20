@@ -36,27 +36,9 @@ ipv6_enable() {
   echo 0 > /proc/sys/net/ipv6/conf/wlan0/disable_ipv6
 } >> /dev/null 2>&1
 
-# Function to probe for the tun device
-probe_tun_device() {
-  ifconfig | grep -q "${tun_device}" || return 1
-}
-
-# Function to get the tun device index from rt_tables
-probe_tun_index() {
-  while [ ! -f "/data/misc/net/rt_tables" ]; do
-    sleep 1
-  done
-  while read -r index name; do
-    if [ "${name}" = "${tun_device}" ]; then
-      tun_table_index=${index}
-      return 0
-    fi
-  done < /data/misc/net/rt_tables
-  return 1
-}
-
 # Function to manage IP rules for the tun device
 tun_forward_ip_rules() {
+local tun_table_index=$(ip route show table all | grep -E "default dev ${interface_name} table [0-9]" | head -n 1 | awk '{print $5}')
 local action=$1
 ipv4_rules=(
   "iif lo goto 6000 pref 5000"
@@ -68,6 +50,10 @@ ipv4_rules=(
   "nop pref 6000"
 )
 
+  for rule in "${ipv4_rules[@]}"; do
+    ip -4 rule "${action}" ${rule}
+  done
+
 ipv6_rules=(
   "iif lo goto 6000 pref 5000"
   "iif ${tun_device} lookup main suppress_prefixlength 0 pref 5010"
@@ -77,10 +63,6 @@ ipv6_rules=(
   "iif ${tun_device} goto 6000 pref 5020"
   "nop pref 6000"
 )
-
-  for rule in "${ipv4_rules[@]}"; do
-    ip -4 rule "${action}" ${rule}
-  done
 
   for rule in "${ipv6_rules[@]}"; do
     ip -6 rule "${action}" ${rule}
@@ -116,30 +98,20 @@ forward() {
   sysctl -w net.ipv4.ip_forward=1
   sysctl -w net.ipv4.conf.default.rp_filter=2
   sysctl -w net.ipv4.conf.all.rp_filter=2
-
-  probe_tun_index
-
-  if [ "${tun_forward}" = "enabled" ]; then
-    if probe_tun_device; then
-      tun_forward_ip_rules_del
-      tun_forward_ip_rules "${action}"
-      if [ "${action}" = "-I" ]; then
-        sing_tun_ip_rules "add"
-      else
-        sing_tun_ip_rules "del"
-      fi
-    else
-      tun_forward_ip_rules_del
-      tun_forward_ip_rules -D
-      sing_tun_ip_rules "del"
-      return 1
-    fi
+    
+  if [ "${action}" = "-I" ]; then
+    sing_tun_ip_rules "add"
+    tun_forward_ip_rules "add"
+  else
+    sing_tun_ip_rules "del"
+    tun_forward_ip_rules "del"
   fi
+
   return 0
 } >> /dev/null 2>&1
 
 run_tun() {
-  stop_tun > /dev/null 2>&1
+#  stop_tun > /dev/null 2>&1
   chmod +x ${binary}
   chown root:net_admin ${binary}
   nohup ${binary} run -c ${config_file} -D ${parent_dir}/binary/ > /dev/null 2>&1 &
@@ -154,6 +126,8 @@ stop_tun() {
   kill $pid > /dev/null 2>&1
   forward -D
   disable_ipv6
+  tun_forward_ip_rules_del
   rm -rf ${scripts_dir}/pid
 }
-# 2024 9 20
+
+# 2024 9 20 17:17
