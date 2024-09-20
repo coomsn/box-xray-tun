@@ -107,7 +107,6 @@ forward() {
 }
 
 run_tun() {
-#  stop_tun > /dev/null 2>&1
   chmod +x ${binary}
   chown root:net_admin ${binary}
   nohup ${binary} run -c ${config_file} -D ${parent_dir}/binary/ > /dev/null 2>&1 &
@@ -126,4 +125,4 @@ stop_tun() {
   rm -rf ${scripts_dir}/pid
 }
 
-# 2024 9 20 1925
+# 2024 9 20 2002
