@@ -26,7 +26,7 @@ disable_ipv6() {
   echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
   echo 1 > /proc/sys/net/ipv6/conf/default/disable_ipv6
   echo 1 > /proc/sys/net/ipv6/conf/wlan0/disable_ipv6
-} >> /dev/null 2>&1
+} 
 
 ipv6_enable() {
   echo 1 > /proc/sys/net/ipv6/conf/all/accept_ra
@@ -34,9 +34,8 @@ ipv6_enable() {
   echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6
   echo 0 > /proc/sys/net/ipv6/conf/default/disable_ipv6
   echo 0 > /proc/sys/net/ipv6/conf/wlan0/disable_ipv6
-} >> /dev/null 2>&1
+} 
 
-# Function to manage IP rules for the tun device
 tun_forward_ip_rules() {
 local tun_table_index=$(ip route show table all | grep -E "default dev ${interface_name} table [0-9]" | head -n 1 | awk '{print $5}')
 local action=$1
@@ -69,7 +68,6 @@ ipv6_rules=(
   done
 }
 
-# Function to delete IP rules for the tun device
 tun_forward_ip_rules_del() {
   for preff in 5000 5010 5020 5030 5040 5050 6000; do
     ip -4 rule del pref $preff
@@ -85,7 +83,6 @@ sing_tun_ip_rules() {
   ip -6 rule $1 from all iif ${tun_device} lookup main suppress_prefixlength 0 pref 8000
 }
 
-# Function to modify the FORWARD chain for the specified tun device using iptables
 forward() {
   local action=$1
   iptables "${action}" FORWARD -i "${tun_device}" -j ACCEPT
@@ -94,9 +91,9 @@ forward() {
   ip6tables "${action}" FORWARD -i "${tun_device}" -j ACCEPT
   ip6tables "${action}" FORWARD -o "${tun_device}" -j ACCEPT
 
-  sysctl -w net.ipv4.ip_forward=1
-  sysctl -w net.ipv4.conf.default.rp_filter=2
-  sysctl -w net.ipv4.conf.all.rp_filter=2
+  echo 1 > /proc/sys/net/ipv4/ip_forward
+  echo 2 > /proc/sys/net/ipv4/conf/default/rp_filter
+  echo 2 > /proc/sys/net/ipv4/conf/all/rp_filter
     
   if [ "${action}" = "-I" ]; then
     sing_tun_ip_rules "add"
@@ -107,7 +104,7 @@ forward() {
   fi
 
   return 0
-} >> /dev/null 2>&1
+}
 
 run_tun() {
 #  stop_tun > /dev/null 2>&1
@@ -129,4 +126,4 @@ stop_tun() {
   rm -rf ${scripts_dir}/pid
 }
 
-# 2024 9 20 1842
+# 2024 9 20 1925
