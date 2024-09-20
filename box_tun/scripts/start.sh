@@ -12,7 +12,7 @@ export TZ='Asia/Shanghai'
 
 # Check if the disable file does not exist, then run the proxy
 if [ ! -f "${module_dir}/disable" ]; then
-  run_run # >/dev/null 2>&1
+  run_tun # >/dev/null 2>&1
 fi
 
 start_box_tun.inotify() {
