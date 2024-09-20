@@ -2,6 +2,7 @@
 scripts=$(realpath $0)
 scripts_dir=$(dirname ${scripts})
 parent_dir=$(dirname ${scripts_dir})
+export PATH="/data/adb/magisk:/data/adb/ksu/bin:/data/adb/ap/bin:$PATH:/system/bin"
 
 normal="\033[0m"
 orange="\033[1;38;5;208m"
@@ -13,11 +14,6 @@ blue="\033[1;34m"
 config_file=${parent_dir}/confs/tun.json
 binary=${parent_dir}/binary/sing-box
 interface_name=$(grep '"interface_name"' "${config_file}" | awk -F'"' '{print $4}')
-
-export PATH="/data/adb/magisk:/data/adb/ksu/bin:/data/adb/ap/bin:$PATH:/system/bin"
-
-pref="100"
-tun_forward="enabled"
 tun_device="${interface_name}"
 
 disable_ipv6() {
