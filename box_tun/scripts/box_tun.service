@@ -147,4 +147,4 @@ stop_tun() {
   # rm -rf ${scripts_dir}/run.log
 }
 
-# 2024 9 21 0945
+# 2024 9 21 1200
