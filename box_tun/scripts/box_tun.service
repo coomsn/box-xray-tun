@@ -116,10 +116,10 @@ local action=$1
     sing_tun_ip_rules "del"
     tun_forward_ip_rules "del"
   fi
-
+  
+  echo "action: ${action}" >> "${scripts_dir}/run.log"
   iptables "${action}" FORWARD -i "${tun_device}" -j ACCEPT
   iptables "${action}" FORWARD -o "${tun_device}" -j ACCEPT
-  
   ip6tables "${action}" FORWARD -i "${tun_device}" -j ACCEPT
   ip6tables "${action}" FORWARD -o "${tun_device}" -j ACCEPT
 
@@ -134,15 +134,17 @@ run_tun() {
   forward -I
   pid=$(pidof sing-box 2>/dev/null)
   [ -n "${pid}" ] && echo "pid: ${pid}" >> "${scripts_dir}/run.log"
+  echo "tun started" >> "${scripts_dir}/run.log"
 }
 
 stop_tun() {
   pid=$(pidof sing-box 2>/dev/null)
-  kill $pid > /dev/null 2>&1
   forward -D
   disable_ipv6
   tun_forward_ip_rules_del
-  rm -rf ${scripts_dir}/run.log
+  kill $pid > /dev/null 2>&1
+  echo "tun stopped" >> "${scripts_dir}/run.log"
+  # rm -rf ${scripts_dir}/run.log
 }
 
 # 2024 9 21 0945
