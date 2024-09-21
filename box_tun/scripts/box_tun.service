@@ -62,10 +62,10 @@ ipv4_rules=(
 ipv6_rules=(
   "iif lo goto 6000 pref 5000"
   "iif ${tun_device} lookup main suppress_prefixlength 0 pref 5010"
-  "from 240e::/18 lookup ${tun_table_index} pref 5030"
-  "from 2408:8000::/20 lookup ${tun_table_index} pref 5040"
-  "from 2409:8000::/20 lookup ${tun_table_index} pref 5050"
   "iif ${tun_device} goto 6000 pref 5020"
+  # "from 2001:db8::/32 lookup ${tun_table_index} pref 5030"
+  # "from fc00::/7 lookup ${tun_table_index} pref 5040"
+  # "from fd00::/8 lookup ${tun_table_index} pref 5050"
   "nop pref 6000"
 )
   for rule in "${ipv6_rules[@]}"; do
