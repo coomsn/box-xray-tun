@@ -13,8 +13,6 @@ blue="\033[1;34m"
 
 config_file=${parent_dir}/confs/tun.json
 binary=${parent_dir}/binary/sing-box
-interface_name=$(grep '"interface_name"' "${config_file}" | awk -F'"' '{print $4}')
-tun_device="${interface_name}"
 
 disable_ipv6() {
   echo 0 > /proc/sys/net/ipv6/conf/all/accept_ra
@@ -24,7 +22,7 @@ disable_ipv6() {
   echo 1 > /proc/sys/net/ipv6/conf/wlan0/disable_ipv6
 } 
 
-ipv6_enable() {
+enable_ipv6() {
   echo 1 > /proc/sys/net/ipv6/conf/all/accept_ra
   echo 1 > /proc/sys/net/ipv6/conf/wlan0/accept_ra
   echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6
@@ -33,18 +31,19 @@ ipv6_enable() {
 } 
 
 tun_forward_ip_rules() {
-local max_retries=5
+local max_retries=15
 local retry_count=0
 local tun_table_index=""
 
 while [ -z "$tun_table_index" ] && [ $retry_count -lt $max_retries ]; do
-    tun_table_index=$(ip route show table all | grep -E "default dev ${interface_name} table [0-9]" | head -n 1 | awk '{print $5}')
+    tun_table_index=$(ip route show table all | grep -E "default dev ${tun_device} table [0-9]" | head -n 1 | awk '{print $5}')
     if [ -n "$tun_table_index" ]; then
         break
     fi
     sleep 1
     retry_count=$((retry_count + 1))
 done
+echo "tun_table_index: $tun_table_index" >> $scripts_dir/run.log
 
 local action=$1
 ipv4_rules=(
@@ -56,7 +55,6 @@ ipv4_rules=(
   "from 192.168.0.0/16 lookup ${tun_table_index} pref 5050"
   "nop pref 6000"
 )
-
   for rule in "${ipv4_rules[@]}"; do
     ip -4 rule "${action}" ${rule}
   done
@@ -64,13 +62,12 @@ ipv4_rules=(
 ipv6_rules=(
   "iif lo goto 6000 pref 5000"
   "iif ${tun_device} lookup main suppress_prefixlength 0 pref 5010"
-  # "from 2001:db8::/32 lookup ${tun_table_index} pref 5030"
-  # "from fc00::/7 lookup ${tun_table_index} pref 5040"
-  # "from fd00::/8 lookup ${tun_table_index} pref 5050"
+  "from 240e::/18 lookup ${tun_table_index} pref 5030"
+  "from 2408:8000::/20 lookup ${tun_table_index} pref 5040"
+  "from 2409:8000::/20 lookup ${tun_table_index} pref 5050"
   "iif ${tun_device} goto 6000 pref 5020"
   "nop pref 6000"
 )
-
   for rule in "${ipv6_rules[@]}"; do
     ip -6 rule "${action}" ${rule}
   done
@@ -84,6 +81,20 @@ tun_forward_ip_rules_del() {
 }
 
 sing_tun_ip_rules() {
+local max_retries=5
+local retry_count=0
+tun_device=""
+
+while [ -z "${tun_device}" ] && [ $retry_count -lt $max_retries ]; do
+    tun_device=$(ip route | awk '{for(i=1;i<=NF;i++) if($i ~ /tun[0-9]+/) {print $i; exit}}')
+    if [ -n "${tun_device}" ]; then
+        break
+    fi
+    sleep 1
+    retry_count=$((retry_count + 1))
+done
+echo "tun_device: ${tun_device}" > $scripts_dir/run.log
+
   ip -4 rule $1 lookup main pref 7000
   ip -4 rule $1 from all iif ${tun_device} lookup main suppress_prefixlength 0 pref 8000
   
@@ -92,12 +103,7 @@ sing_tun_ip_rules() {
 }
 
 forward() {
-  local action=$1
-  iptables "${action}" FORWARD -i "${tun_device}" -j ACCEPT
-  iptables "${action}" FORWARD -o "${tun_device}" -j ACCEPT
-  
-  ip6tables "${action}" FORWARD -i "${tun_device}" -j ACCEPT
-  ip6tables "${action}" FORWARD -o "${tun_device}" -j ACCEPT
+local action=$1
 
   echo 1 > /proc/sys/net/ipv4/ip_forward
   echo 2 > /proc/sys/net/ipv4/conf/default/rp_filter
@@ -111,6 +117,12 @@ forward() {
     tun_forward_ip_rules "del"
   fi
 
+  iptables "${action}" FORWARD -i "${tun_device}" -j ACCEPT
+  iptables "${action}" FORWARD -o "${tun_device}" -j ACCEPT
+  
+  ip6tables "${action}" FORWARD -i "${tun_device}" -j ACCEPT
+  ip6tables "${action}" FORWARD -o "${tun_device}" -j ACCEPT
+
   return 0
 }
 
@@ -118,10 +130,10 @@ run_tun() {
   chmod +x ${binary}
   chown root:net_admin ${binary}
   nohup ${binary} run -c ${config_file} -D ${parent_dir}/binary/ > /dev/null 2>&1 &
-  ipv6_enable
+  enable_ipv6
   forward -I
   pid=$(pidof sing-box 2>/dev/null)
-  [ -n "${pid}" ] && echo "${pid}" > "${scripts_dir}/pid"
+  [ -n "${pid}" ] && echo "pid: ${pid}" >> "${scripts_dir}/run.log"
 }
 
 stop_tun() {
@@ -130,7 +142,7 @@ stop_tun() {
   forward -D
   disable_ipv6
   tun_forward_ip_rules_del
-  rm -rf ${scripts_dir}/pid
+  rm -rf ${scripts_dir}/run.log
 }
 
-# 2024 9 20 2158
+# 2024 9 21 0945
