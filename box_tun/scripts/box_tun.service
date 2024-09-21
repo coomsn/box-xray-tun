@@ -31,7 +31,7 @@ enable_ipv6() {
 } 
 
 tun_forward_ip_rules() {
-local max_retries=15
+local max_retries=5
 local retry_count=0
 local tun_table_index=""
 
