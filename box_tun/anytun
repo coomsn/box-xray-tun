@@ -9,7 +9,7 @@ tun_device="tun0"
 
 log() {
   export TZ=Asia/Shanghai
-  now=$(date +"[%Y-%m-%d %H:%M:%S %Z]")
+  now=$(date +"[%Y-%m-%d %H:%M:%S]")
   case $1 in
     Info)
       [ -t 1 ] && echo -e "\033[1;32m${now} [Info]: $2\033[0m" || echo "${now} [Info]: $2"
@@ -20,6 +20,9 @@ log() {
     Error)
       [ -t 1 ] && echo -e "\033[1;31m${now} [Error]: $2\033[0m" || echo "${now} [Error]: $2"
       ;;
+    Status)
+      [ -t 1 ] && echo -e "\033[1;38;5;208m${now} [Status]: $2\033[0m" || echo "${now} [Status]: $2"
+      ;;
     *)
       [ -t 1 ] && echo -e "\033[1;30m${now} [$1]: $2\033[0m" || echo "${now} [$1]: $2"
       ;;
@@ -27,7 +30,7 @@ log() {
 }
 
 tun_forward_ip_rules() {
-
+local action=$1
   while [ ! -f "/data/misc/net/rt_tables" ] ; do
     sleep 3
   done
@@ -36,9 +39,10 @@ tun_forward_ip_rules() {
       tun_table_index=${index}
     fi
   done < /data/misc/net/rt_tables
-  log Warn "tun_table_index: ${tun_table_index}"
+  log Info "tun_device: ${tun_device}"
+  log Info "tun_table_index: ${tun_table_index}"
+  # echo "${tun_table_index}" > ${scripts_dir}/table_index
 
-local action=$1
 ipv4_rules=(
   "iif lo goto 6000 pref 5000"
   "iif ${tun_device} lookup main suppress_prefixlength 0 pref 5010"
@@ -47,6 +51,7 @@ ipv4_rules=(
   "from 172.16.0.0/12 lookup ${tun_table_index} pref 5040"
   "from 192.168.0.0/16 lookup ${tun_table_index} pref 5050"
   "nop pref 6000"
+  "lookup main pref 7000"
 )
   for rule in "${ipv4_rules[@]}"; do
     ip -4 rule "${action}" ${rule} > /dev/null 2>&1
@@ -60,6 +65,7 @@ ipv6_rules=(
   # "from fc00::/7 lookup ${tun_table_index} pref 5040"
   # "from fd00::/8 lookup ${tun_table_index} pref 5050"
   "nop pref 6000"
+  "lookup main pref 7000"
 )
   for rule in "${ipv6_rules[@]}"; do
     ip -6 rule "${action}" ${rule} > /dev/null 2>&1
@@ -90,7 +96,7 @@ local action=$1
     log Info "Remove ip rules by '"del"' command"
   fi
   iptables_rules "${action}"
-  }
+}
 
 iptables_rules() {
 local action=$1
@@ -144,47 +150,24 @@ fi
 }
 
 clear
-# case "$1" in
-  # start)
-    # log Info "tun_device: ${tun_device}"
-    # tun_forward_ip_rules_del
-    # forward "-I"
-    # log Info "tun proxy started"
-    # ;;
-  # stop)
-    # forward "-D"
-    # tun_forward_ip_rules_del
-    # log Info "tun proxy stopped"
-    # ;;
-  # *)
-    # log Error "$0 $1 usage: $0 {start|stop}"
-    # ;;
-# esac
 
-echo "请选择操作:"
-select option in "Start" "Stop" "Exit"; do
-  case $option in
-    "Start")
-      log Info "tun_device: ${tun_device}"
-      tun_forward_ip_rules_del
-      forward "-I"
-      log Info "tun proxy started"
-      break
-      ;;
-    "Stop")
-      forward "-D"
-      tun_forward_ip_rules_del
-      log Info "tun proxy stopped"
-      break
-      ;;
-    "Exit")
-      echo "退出程序。"
-      break
-      ;;
-    *)
-      echo "无效输入，请输入 1 (Start) 或 2 (Stop) 或 0 (Exit)"
-      ;;
-  esac
-done
+if ip link | grep -Eq 'tun[0-9]'; then
+  if [ ! -f "${scripts_dir}/start" ]; then
+        tun_forward_ip_rules_del
+        forward "-I"
+        log Status "tun proxy started"
+        touch "${scripts_dir}/start"
+        rm -rf "${scripts_dir}/stop" 2>/dev/null
+  else
+        forward "-D"
+        tun_forward_ip_rules_del
+        log Status "tun proxy stopped"
+        touch "${scripts_dir}/stop"
+        rm -rf "${scripts_dir}/start" 2>/dev/null
+  fi
+else
+        log Warn "请先打开vpn,再运行本脚本！！！"
+fi
 
-# 2024 9 23 0146
+# 2024 9 23 0800
+
