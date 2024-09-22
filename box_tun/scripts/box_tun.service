@@ -86,7 +86,9 @@ local retry_count=0
 tun_device=""
 
 while [ -z "${tun_device}" ] && [ $retry_count -lt $max_retries ]; do
-    tun_device=$(ip route | awk '{for(i=1;i<=NF;i++) if($i ~ /tun[0-9]+/) {print $i; exit}}')
+    # tun_device=$(ip route | awk '{for(i=1;i<=NF;i++) if($i ~ /tun[0-9]+/) {print $i; exit}}')
+    # tun_device=$(ip route show table all | grep "default dev" | grep -E "table [0-9]+" | awk '/dev/ {for(i=1;i<=NF;i++) if($i == "dev") {print $(i+1); exit}}')
+    tun_device=$(awk -F'"' '/"interface_name"/ {print $4}' ${config_file})
     if [ -n "${tun_device}" ]; then
         break
     fi
@@ -135,6 +137,7 @@ run_tun() {
   pid=$(pidof sing-box 2>/dev/null)
   [ -n "${pid}" ] && echo "pid: ${pid}" >> "${scripts_dir}/run.log"
   echo "tun started" >> "${scripts_dir}/run.log"
+  update_description "✔" "is running."
 }
 
 stop_tun() {
@@ -144,7 +147,25 @@ stop_tun() {
   tun_forward_ip_rules_del
   kill $pid > /dev/null 2>&1
   echo "tun stopped" >> "${scripts_dir}/run.log"
-  # rm -rf ${scripts_dir}/run.log
+  update_description "✘" "was stopped."
+}
+
+# version
+version_number() {
+if [ -f "${binary}" ]; then
+  version=$(${binary} version | head -n 1 | awk '{print $3}')
+fi
+}
+
+update_description() {
+  local symbol=$1
+  local event=$2
+  local network_mode="tun"
+  version_number
+  prop_file="/data/adb/modules/box_tun-module/module.prop"
+  core_name="${binary##*/}"
+  current_time=$(date "+[%m.%d %H:%M]")
+  sed -i "/description/c\description=${current_time} ${symbol} ${core_name} ${version} ${network_mode} ${event}" "${prop_file}"
 }
 
 # 2024 9 21 1200
