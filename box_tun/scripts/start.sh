@@ -11,7 +11,7 @@ export PATH="/data/adb/magisk:/data/adb/ksu/bin:$PATH:/system/bin"
 
 # Check if the disable file does not exist, then run the proxy
 if [ ! -f "${module_dir}/disable" ]; then
-  run_tun # >/dev/null 2>&1
+  start_tun # >/dev/null 2>&1
 fi
 
 start_box_tun.inotify() {
