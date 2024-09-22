@@ -129,6 +129,9 @@ local action=$1
 }
 
 run_tun() {
+if pidof "${binary}"; then
+    stop_tun
+fi
   chmod +x ${binary}
   chown root:net_admin ${binary}
   nohup ${binary} run -c ${config_file} -D ${parent_dir}/binary/ > /dev/null 2>&1 &
