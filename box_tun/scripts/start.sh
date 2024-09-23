@@ -6,7 +6,11 @@ parent_dir=$(dirname ${scripts_dir})
 module_dir="/data/adb/modules/box_tun-module"
 
 source ${scripts_dir}/box_tun.service
-log Info "The process is starting, please wait"
+if [ ! -f "${module_dir}/disable" ]; then
+  log Info "The process is starting, please wait"
+else
+  log Warn "Please turn on the mask switch"
+fi
 
 # environment variables
 export PATH="/data/adb/magisk:/data/adb/ksu/bin:$PATH:/system/bin"
