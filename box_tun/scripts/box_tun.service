@@ -9,7 +9,7 @@ binary=${parent_dir}/binary/sing-box
 
 log() {
   export TZ=Asia/Shanghai
-  now=$(date +"[%y-%m-%d %H:%M:%S]")
+  now=$(date +"[%Y-%m-%d %H:%M:%S]")
   case $1 in
     Info)
       [ -t 1 ] && echo -e "\033[1;32m${now} [Info]: $2\033[0m" || echo "${now} [Info]: $2"
