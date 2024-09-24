@@ -77,11 +77,15 @@ log Info "tun_table_index: $tun_table_index" >> $scripts_dir/run.log
 
 local action=$1
 ipv4_rules=(
+  "iif lo goto 6000 pref 5000"
   "iif ${tun_device} lookup main suppress_prefixlength 0 pref 5010"
+  "iif ${tun_device} goto 6000 pref 5020"
   "from 10.0.0.0/8 lookup ${tun_table_index} pref 5030"
   "from 172.16.0.0/12 lookup ${tun_table_index} pref 5040"
   "from 192.168.0.0/16 lookup ${tun_table_index} pref 5050"
-  "lookup main pref 8500"
+  "nop pref 6000"
+  "from all iif ${tun_device} lookup main suppress_prefixlength 0 pref 8000"
+  "lookup main pref 7000"
 )
   for rule in "${ipv4_rules[@]}"; do
     ip -4 rule "${action}" ${rule}
@@ -89,8 +93,15 @@ ipv4_rules=(
   done
 
 ipv6_rules=(
+  "iif lo goto 6000 pref 5000"
   "iif ${tun_device} lookup main suppress_prefixlength 0 pref 5010"
-  "lookup main pref 8500"
+  "iif ${tun_device} goto 6000 pref 5020"
+  # "from 2001:db8::/32 lookup ${tun_table_index} pref 5030"
+  # "from fc00::/7 lookup ${tun_table_index} pref 5040"
+  "from fd00::/8 lookup ${tun_table_index} pref 5050"
+  "nop pref 6000"
+  "from all iif ${tun_device} lookup main suppress_prefixlength 0 pref 8000"
+  "lookup main pref 7000"
 )
   for rule in "${ipv6_rules[@]}"; do
     ip -6 rule "${action}" ${rule}
@@ -99,7 +110,7 @@ ipv6_rules=(
 }
 
 tun_forward_ip_rules_del() {
-  for preff in 5010 5030 5040 5050 8500; do
+  for preff in 5000 5010 5020 5030 5040 5050 6000 7000 8000; do
     ip -4 rule del pref $preff
     ip -6 rule del pref $preff
   done
@@ -164,6 +175,25 @@ local action=$1
   iptables_rules "${action}"
 }
 
+# version
+version_number() {
+if [ -f "${binary}" ]; then
+  version=$(${binary} version | head -n 1 | awk '{print $3}')
+fi
+}
+
+update_description() {
+  local symbol=$1
+  local event=$2
+  local network_mode="tun"
+  version_number
+  prop_file="/data/adb/modules/box_tun-module/module.prop"
+  core_name="${binary##*/}"
+  current_time=$(date "+[%m.%d %H:%M]")
+  sed -i "/description/c\description=${current_time} ${symbol} ${core_name} ${version} ${network_mode} ${event}" "${prop_file}"
+  log Info "${symbol} ${network_mode} ${event}" >> "${scripts_dir}/run.log"
+}
+
 start_tun() {
 if pidof "${binary}" >/dev/null 2>&1; then
     log Info "Close existing processes $(pidof ${binary})" 
@@ -189,23 +219,4 @@ stop_tun() {
   update_description "✘" "was stopped."
 }
 
-# version
-version_number() {
-if [ -f "${binary}" ]; then
-  version=$(${binary} version | head -n 1 | awk '{print $3}')
-fi
-}
-
-update_description() {
-  local symbol=$1
-  local event=$2
-  local network_mode="tun"
-  version_number
-  prop_file="/data/adb/modules/box_tun-module/module.prop"
-  core_name="${binary##*/}"
-  current_time=$(date "+[%m.%d %H:%M]")
-  sed -i "/description/c\description=${current_time} ${symbol} ${core_name} ${version} ${network_mode} ${event}" "${prop_file}"
-  log Info "${symbol} ${network_mode} ${event}" >> "${scripts_dir}/run.log"
-}
-
-# 2024 9 23 2230
+# 2024 9 24 0936
