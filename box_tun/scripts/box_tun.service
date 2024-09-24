@@ -130,7 +130,7 @@ if [[ "${action}" == "-I" ]]; then
   ip6tables -F TUN_FORWARD 2>/dev/null
 
   iptables -t nat "${action}" TUN_PREROUTING -p udp --dport 53 -j DNAT --to-destination 1.1.1.1:53
-  iptables -t nat "${action}" TUN_POSTROUTING -o tun0 -j MASQUERADE
+  iptables -t nat "${action}" TUN_POSTROUTING -o "${tun_device}" -j MASQUERADE
   iptables "${action}" TUN_FORWARD -i "${tun_device}" -j ACCEPT
   iptables "${action}" TUN_FORWARD -o "${tun_device}" -j ACCEPT
 
@@ -175,25 +175,6 @@ local action=$1
   iptables_rules "${action}"
 }
 
-# version
-version_number() {
-if [ -f "${binary}" ]; then
-  version=$(${binary} version | head -n 1 | awk '{print $3}')
-fi
-}
-
-update_description() {
-  local symbol=$1
-  local event=$2
-  local network_mode="tun"
-  version_number
-  prop_file="/data/adb/modules/box_tun-module/module.prop"
-  core_name="${binary##*/}"
-  current_time=$(date "+[%m.%d %H:%M]")
-  sed -i "/description/c\description=${current_time} ${symbol} ${core_name} ${version} ${network_mode} ${event}" "${prop_file}"
-  log Info "${symbol} ${network_mode} ${event}" >> "${scripts_dir}/run.log"
-}
-
 start_tun() {
 if pidof "${binary}" >/dev/null 2>&1; then
     log Info "Close existing processes $(pidof ${binary})" 
@@ -219,4 +200,23 @@ stop_tun() {
   update_description "✘" "was stopped."
 }
 
-# 2024 9 24 0936
+# version
+version_number() {
+if [ -f "${binary}" ]; then
+  version=$(${binary} version | head -n 1 | awk '{print $3}')
+fi
+}
+
+update_description() {
+  local symbol=$1
+  local event=$2
+  local network_mode="tun"
+  version_number
+  prop_file="/data/adb/modules/box_tun-module/module.prop"
+  core_name="${binary##*/}"
+  current_time=$(date "+[%m.%d %H:%M]")
+  sed -i "/description/c\description=${current_time} ${symbol} ${core_name} ${version} ${network_mode} ${event}" "${prop_file}"
+  log Info "${symbol} ${network_mode} ${event}" >> "${scripts_dir}/run.log"
+}
+
+# 2024 9 24 1908
