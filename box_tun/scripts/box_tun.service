@@ -47,24 +47,13 @@ enable_ipv6() {
   log Info "ipv6: enable" >> "${scripts_dir}/run.log"
 } 
 
-tun_forward_ip_rules() {
-local max_retries=5
-local retry_count=0
-tun_device=""
-
-while [ -z "${tun_device}" ] && [ $retry_count -lt $max_retries ]; do
-    tun_device=$(awk -F'"' '/"interface_name"/ {print $4}' ${config_file})
-    if [ -n "${tun_device}" ]; then
-        break
-    fi
-    sleep 1
-    retry_count=$((retry_count + 1))
-done
+create_ip_rules() {
+tun_device=$(awk -F'"' '/"interface_name"/ {print $4}' ${config_file})
 log Info "tun_device: ${tun_device}" >> $scripts_dir/run.log
 
+local max_retries=5
 local retry_count=0
 local tun_table_index=""
-
 while [ -z "$tun_table_index" ] && [ $retry_count -lt $max_retries ]; do
     tun_table_index=$(ip route show table all | grep -E "default dev ${tun_device} table [0-9]" | head -n 1 | awk '{print $5}')
     if [ -n "$tun_table_index" ]; then
@@ -84,8 +73,8 @@ ipv4_rules=(
   "from 172.16.0.0/12 lookup ${tun_table_index} pref 5040"
   "from 192.168.0.0/16 lookup ${tun_table_index} pref 5050"
   "nop pref 6000"
-  "from all iif ${tun_device} lookup main suppress_prefixlength 0 pref 8000"
   "lookup main pref 7000"
+  "from all iif ${tun_device} lookup main suppress_prefixlength 0 pref 8000"
 )
   for rule in "${ipv4_rules[@]}"; do
     ip -4 rule "${action}" ${rule}
@@ -100,8 +89,8 @@ ipv6_rules=(
   # "from fc00::/7 lookup ${tun_table_index} pref 5040"
   "from fd00::/8 lookup ${tun_table_index} pref 5050"
   "nop pref 6000"
-  "from all iif ${tun_device} lookup main suppress_prefixlength 0 pref 8000"
   "lookup main pref 7000"
+  "from all iif ${tun_device} lookup main suppress_prefixlength 0 pref 8000"
 )
   for rule in "${ipv6_rules[@]}"; do
     ip -6 rule "${action}" ${rule}
@@ -109,7 +98,7 @@ ipv6_rules=(
   done
 }
 
-tun_forward_ip_rules_del() {
+delete_ip_rules() {
   for preff in 5000 5010 5020 5030 5040 5050 6000 7000 8000; do
     ip -4 rule del pref $preff
     ip -6 rule del pref $preff
@@ -119,29 +108,29 @@ tun_forward_ip_rules_del() {
 iptables_rules() {
 local iptables=$1
 local action=$2
-  if [[ "${action}" == "-I" ]]; then
-      ${iptables} -N TUN_FORWARD 2>/dev/null
-      ${iptables} -F TUN_FORWARD 2>/dev/null
-      ${iptables} "${action}" TUN_FORWARD -i "${tun_device}" -j ACCEPT
-      ${iptables} "${action}" TUN_FORWARD -o "${tun_device}" -j ACCEPT
-      ${iptables} "${action}" FORWARD -j TUN_FORWARD
-  elif [[ "${action}" == "-D" ]]; then
-      ${iptables} "${action}" FORWARD -j TUN_FORWARD
-      ${iptables} -F TUN_FORWARD 2>/dev/null
-      ${iptables} -X TUN_FORWARD 2>/dev/null
-  fi
-  log Info "${iptables} ${action} command completed" >> "${scripts_dir}/run.log"
+if [[ "${action}" == "-I" ]]; then
+    ${iptables} -N TUN_FORWARD 2>/dev/null
+    ${iptables} -F TUN_FORWARD 2>/dev/null
+    ${iptables} "${action}" TUN_FORWARD -i "${tun_device}" -j ACCEPT
+    ${iptables} "${action}" TUN_FORWARD -o "${tun_device}" -j ACCEPT
+    ${iptables} "${action}" FORWARD -j TUN_FORWARD
+elif [[ "${action}" == "-D" ]]; then
+    ${iptables} "${action}" FORWARD -j TUN_FORWARD
+    ${iptables} -F TUN_FORWARD 2>/dev/null
+    ${iptables} -X TUN_FORWARD 2>/dev/null
+fi
+log Info "${iptables} ${action} command completed" >> "${scripts_dir}/run.log"
 }
 
 forward() {
 local action=$1
   if [ "${action}" = "-I" ]; then
     enable_ipv6
-    tun_forward_ip_rules "add"
+    create_ip_rules "add"
   elif [ "${action}" = "-D" ]; then
     # disable_ipv6
-    tun_forward_ip_rules "del"
-    tun_forward_ip_rules_del
+    create_ip_rules "del"
+    delete_ip_rules
   fi
   iptables_rules "iptables" "${action}"
   iptables_rules "ip6tables" "${action}"
@@ -158,30 +147,31 @@ fi
   nohup ${binary} run -c ${config_file} -D ${parent_dir}/binary/ > /dev/null 2>&1 &
   forward -I
   pid=$(pidof sing-box 2>/dev/null)
-  [ -n "${pid}" ] && log Info "pid: ${pid}" >> "${scripts_dir}/run.log"
-  update_description "✔" "is running."
+  [ -n "${pid}" ] && log Info "create pid: ${pid}" >> "${scripts_dir}/run.log"
+  description "✔" "is running."
   log Info "Create a new process $(pidof ${binary})" 
 }
 stop_tun() {
   pid=$(pidof sing-box 2>/dev/null)
   log info "---goodbye---" > "${scripts_dir}/run.log"
   forward -D
-  [ -n "${pid}" ] && log Info "pid: ${pid}" >> "${scripts_dir}/run.log"
+  [ -n "${pid}" ] && log Info "delete pid: ${pid}" >> "${scripts_dir}/run.log"
   kill $pid > /dev/null 2>&1
-  update_description "✘" "was stopped."
+  description "✘" "was stopped."
 }
 
 # version
-version_number() {
+version() {
 if [ -f "${binary}" ]; then
   version=$(${binary} version | head -n 1 | awk '{print $3}')
 fi
 }
-update_description() {
+# description
+description() {
   local symbol=$1
   local event=$2
   local network_mode="tun"
-  version_number
+  version
   prop_file="/data/adb/modules/box_tun-module/module.prop"
   core_name="${binary##*/}"
   current_time=$(date "+[%m.%d %H:%M]")
@@ -189,4 +179,4 @@ update_description() {
   log Info "${symbol} ${network_mode} ${event}" >> "${scripts_dir}/run.log"
 }
 
-# 2024 9 25 0300
+# 2024 9 25 1945
