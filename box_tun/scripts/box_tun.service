@@ -47,7 +47,7 @@ enable_ipv6() {
   log Info "ipv6: enable" >> "${scripts_dir}/run.log"
 } 
 
-create_ip_rules() {
+tun_index_device() {
 local max_retries=5
 local retry_count=0
 local tun_table_index=""
@@ -129,10 +129,10 @@ forward() {
 local action=$1
   if [ "${action}" = "-I" ]; then
     enable_ipv6
-    create_ip_rules "add"
+    tun_index_device "add"
   elif [ "${action}" = "-D" ]; then
     # disable_ipv6
-    create_ip_rules "del"
+    tun_index_device "del"
     delete_ip_rules
   fi
   iptables_rules "iptables" "${action}"
@@ -184,4 +184,4 @@ description() {
   log Info "${symbol} ${network_mode} ${event}" >> "${scripts_dir}/run.log"
 }
 
-# 2024 9 25 2200
+# 2024 9 25 2330
