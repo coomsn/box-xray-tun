@@ -48,21 +48,24 @@ enable_ipv6() {
 } 
 
 create_ip_rules() {
-tun_device=$(awk -F'"' '/"interface_name"/ {print $4}' ${config_file})
-log Info "tun_device: ${tun_device}" >> $scripts_dir/run.log
-
 local max_retries=5
 local retry_count=0
 local tun_table_index=""
-while [ -z "$tun_table_index" ] && [ $retry_count -lt $max_retries ]; do
-    tun_table_index=$(ip route show table all | grep -E "default dev ${tun_device} table [0-9]" | head -n 1 | awk '{print $5}')
-    if [ -n "$tun_table_index" ]; then
-        break
-    fi
-    sleep 1
-    retry_count=$((retry_count + 1))
-done
-log Info "tun_table_index: $tun_table_index" >> $scripts_dir/run.log
+if [ ! -f "${scripts_dir}/tables.tmp" ]; then
+tun_device=$(awk -F'"' '/"interface_name"/ {print $4}' ${config_file})
+  while [ -z "$tun_table_index" ] && [ $retry_count -lt $max_retries ]; do
+      tun_table_index=$(ip route show table all | grep -E "default dev ${tun_device} table [0-9]" | head -n 1 | awk '{print $5}')
+      if [ -n "$tun_table_index" ]; then
+          break
+      fi
+      sleep 1
+      retry_count=$((retry_count + 1))
+  done
+  echo "${tun_table_index} ${tun_device}" > ${scripts_dir}/tables.tmp
+fi
+read tun_table_index tun_device < "${scripts_dir}/tables.tmp"
+log Info "tun_device: ${tun_device}" >> ${scripts_dir}/run.log
+log Info "tun_table_index: $tun_table_index" >> ${scripts_dir}/run.log
 
 local action=$1
 ipv4_rules=(
@@ -78,7 +81,7 @@ ipv4_rules=(
 )
   for rule in "${ipv4_rules[@]}"; do
     ip -4 rule "${action}" ${rule}
-    log Info "ip -4 rule ${action} ${rule}" >> $scripts_dir/run.log
+    log Info "ip -4 rule ${action} ${rule}" >> ${scripts_dir}/run.log
   done
 
 ipv6_rules=(
@@ -94,7 +97,7 @@ ipv6_rules=(
 )
   for rule in "${ipv6_rules[@]}"; do
     ip -6 rule "${action}" ${rule}
-    log Info "ip -6 rule ${action} ${rule}" >> $scripts_dir/run.log
+    log Info "ip -6 rule ${action} ${rule}" >> ${scripts_dir}/run.log
   done
 }
 
@@ -151,6 +154,7 @@ fi
   description "✔" "is running."
   log Info "Create a new process $(pidof ${binary})" 
 }
+
 stop_tun() {
   pid=$(pidof sing-box 2>/dev/null)
   log info "---goodbye---" > "${scripts_dir}/run.log"
@@ -158,6 +162,7 @@ stop_tun() {
   [ -n "${pid}" ] && log Info "delete pid: ${pid}" >> "${scripts_dir}/run.log"
   kill $pid > /dev/null 2>&1
   description "✘" "was stopped."
+  rm -f ${scripts_dir}/tables.tmp
 }
 
 # version
@@ -179,4 +184,4 @@ description() {
   log Info "${symbol} ${network_mode} ${event}" >> "${scripts_dir}/run.log"
 }
 
-# 2024 9 25 1945
+# 2024 9 25 2200
