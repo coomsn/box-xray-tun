@@ -36,9 +36,6 @@ disable_ipv6() {
 } 
 
 enable_ipv6() {
-  echo 1 > /proc/sys/net/ipv4/ip_forward
-  echo 2 > /proc/sys/net/ipv4/conf/default/rp_filter
-  echo 2 > /proc/sys/net/ipv4/conf/all/rp_filter
   echo 1 > /proc/sys/net/ipv6/conf/all/accept_ra
   echo 1 > /proc/sys/net/ipv6/conf/wlan0/accept_ra
   echo 0 > /proc/sys/net/ipv6/conf/all/disable_ipv6
@@ -127,16 +124,21 @@ log Info "${iptables} ${action} command completed" >> "${scripts_dir}/run.log"
 
 forward() {
 local action=$1
-  if [ "${action}" = "-I" ]; then
-    enable_ipv6
-    tun_index_device "add"
-  elif [ "${action}" = "-D" ]; then
-    # disable_ipv6
-    tun_index_device "del"
-    delete_ip_rules
-  fi
-  iptables_rules "iptables" "${action}"
-  iptables_rules "ip6tables" "${action}"
+if [ "${action}" = "-I" ]; then
+  echo 1 > /proc/sys/net/ipv4/ip_forward
+  echo 2 > /proc/sys/net/ipv4/conf/default/rp_filter
+  echo 2 > /proc/sys/net/ipv4/conf/all/rp_filter
+fi
+if [ "${action}" = "-I" ]; then
+  enable_ipv6
+  tun_index_device "add"
+elif [ "${action}" = "-D" ]; then
+  # disable_ipv6
+  tun_index_device "del"
+  delete_ip_rules
+fi
+iptables_rules "iptables" "${action}"
+iptables_rules "ip6tables" "${action}"
 }
 
 start_tun() {
@@ -184,4 +186,4 @@ description() {
   log Info "${symbol} ${network_mode} ${event}" >> "${scripts_dir}/run.log"
 }
 
-# 2024 9 25 2330
+# 2024 9 26 1115
