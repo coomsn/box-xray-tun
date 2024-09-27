@@ -2,7 +2,6 @@
 clear
 scripts=$(realpath $0)
 scripts_dir=$(dirname ${scripts})
-parent_dir=$(dirname ${scripts_dir})
 module_dir="/data/adb/modules/box_tun-module"
 
 source ${scripts_dir}/box_tun.service
