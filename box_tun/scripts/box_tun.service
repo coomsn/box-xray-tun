@@ -44,7 +44,7 @@ enable_ipv6() {
   log Info "ipv6: enable" >> "${scripts_dir}/run.log"
 } 
 
-tun_index_device() {
+ip_rules() {
 local max_retries=5
 local retry_count=0
 local tun_table_index=""
@@ -98,10 +98,10 @@ ipv6_rules=(
   done
 }
 
-delete_ip_rules() {
-  for preff in 5000 5010 5020 5030 5040 5050 6000 7000 8000; do
-    ip -4 rule del pref $preff
-    ip -6 rule del pref $preff
+del_iprules() {
+  for pref in 5000 5010 5020 5030 5040 5050 6000 7000 8000; do
+    ip -4 rule del pref $pref
+    ip -6 rule del pref $pref
   done
 } > /dev/null 2>&1
 
@@ -150,11 +150,11 @@ if [ "${action}" = "-I" ]; then
 fi
 if [ "${action}" = "-I" ]; then
   enable_ipv6
-  tun_index_device "add"
+  ip_rules "add"
 elif [ "${action}" = "-D" ]; then
-  # disable_ipv6
-  tun_index_device "del"
-  delete_ip_rules
+  disable_ipv6
+  ip_rules "del"
+  del_iprules
 fi
 iptables_rules "iptables" "${action}"
 iptables_rules "ip6tables" "${action}"
