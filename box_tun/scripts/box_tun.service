@@ -2,7 +2,7 @@
 scripts=$(realpath $0)
 scripts_dir=$(dirname ${scripts})
 parent_dir=$(dirname ${scripts_dir})
-export PATH="/data/adb/magisk:/data/adb/ksu/bin:/data/adb/ap/bin:$PATH:/system/bin"
+export PATH="/data/adb/magisk:$PATH:/system/bin"
 
 config_file=${parent_dir}/confs/tun.json
 binary=${parent_dir}/binary/sing-box
@@ -200,5 +200,4 @@ description() {
   log Info "${symbol} ${network_mode} ${event}" >> "${scripts_dir}/run.log"
 }
 
-# 2024 9 30 14
-
+# 2024 9 30 23
