@@ -6,6 +6,8 @@ export PATH="/data/adb/magisk:/data/adb/ksu/bin:/data/adb/ap/bin:$PATH:/system/b
 
 config_file=${parent_dir}/confs/tun.json
 binary=${parent_dir}/binary/sing-box
+box_user=0
+box_group=3005
 
 log() {
   export TZ=Asia/Shanghai
@@ -132,6 +134,9 @@ if [[ "${iptables}" == "iptables" ]]; then
     iptables -t nat -X TUN_POSTROUTING 2>/dev/null
   fi
  fi
+# quic
+    ${iptables} "${action}" OUTPUT -p udp --dport 443 -m owner ! --uid-owner ${box_user} ! --gid-owner ${box_group} -j REJECT
+    ${iptables} "${action}" OUTPUT -p udp --dport 80 -m owner ! --uid-owner ${box_user} ! --gid-owner ${box_group} -j REJECT
 }
 
 forward() {
@@ -158,7 +163,7 @@ fi
   log info "---welcome---" > "${scripts_dir}/run.log"
   chmod +x ${binary}
   chown root:net_admin ${binary}
-  nohup ${binary} run -c ${config_file} -D ${parent_dir}/binary/ > /dev/null 2>&1 &
+  nohup busybox setuidgid ${box_user}:${box_group} ${binary} run -c ${config_file} -D ${parent_dir}/binary/ > /dev/null 2>&1 &
   forward -I
   pid=$(pidof sing-box 2>/dev/null)
   [ -n "${pid}" ] && log Info "create pid: ${pid}" >> "${scripts_dir}/run.log"
@@ -195,4 +200,5 @@ description() {
   log Info "${symbol} ${network_mode} ${event}" >> "${scripts_dir}/run.log"
 }
 
-# 2024 9 28 1936
+# 2024 9 30 14
+
