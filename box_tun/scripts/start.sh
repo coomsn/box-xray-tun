@@ -12,7 +12,7 @@ else
 fi
 
 # environment variables
-export PATH="/data/adb/magisk:/data/adb/ksu/bin:$PATH:/system/bin"
+export PATH="/data/adb/magisk:$PATH:/system/bin"
 
 # Check if the disable file does not exist, then run the proxy
 if [ ! -f "${module_dir}/disable" ]; then
