@@ -49,34 +49,34 @@ enable_ipv6() {
 ip_rules() {
 local max_retries=5
 local retry_count=0
-local tun_table_index=""
+local index=""
 if [ ! -f "${scripts_dir}/tables.tmp" ]; then
-  tun_device=$(awk -F'"' '/"interface_name"/ {print $4}' ${config_file})
-  while [ -z "$tun_table_index" ] && [ $retry_count -lt $max_retries ]; do
-    tun_table_index=$(ip route show table all | grep -E "default dev ${tun_device} table [0-9]" | head -n 1 | awk '{print $5}')
-    if [ -n "$tun_table_index" ]; then
+  device=$(awk -F'"' '/"interface_name"/ {print $4}' ${config_file})
+  while [ -z "$index" ] && [ $retry_count -lt $max_retries ]; do
+    index=$(ip route show table all | grep -E "default dev ${device} table [0-9]" | head -n 1 | awk '{print $5}')
+    if [ -n "$index" ]; then
         break
     fi
     sleep 1
     retry_count=$((retry_count + 1))
   done
-  echo "${tun_table_index} ${tun_device}" > ${scripts_dir}/tables.tmp
+  echo "${index} ${device}" > ${scripts_dir}/tables.tmp
 fi
-read tun_table_index tun_device < "${scripts_dir}/tables.tmp"
-log Info "tun_device: ${tun_device}" >> ${scripts_dir}/run.log
-log Info "tun_table_index: $tun_table_index" >> ${scripts_dir}/run.log
+read index device < "${scripts_dir}/tables.tmp"
+log Info "device: ${device}" >> ${scripts_dir}/run.log
+log Info "index: $index" >> ${scripts_dir}/run.log
 
 local action=$1
 ipv4_rules=(
   "iif lo goto 6000 pref 5000"
-  "iif ${tun_device} lookup main suppress_prefixlength 0 pref 5010"
-  "iif ${tun_device} goto 6000 pref 5020"
-  "from 10.0.0.0/8 lookup ${tun_table_index} pref 5030"
-  "from 172.16.0.0/12 lookup ${tun_table_index} pref 5040"
-  "from 192.168.0.0/16 lookup ${tun_table_index} pref 5050"
+  "iif ${device} lookup main suppress_prefixlength 0 pref 5010"
+  "iif ${device} goto 6000 pref 5020"
+  "from 10.0.0.0/8 lookup ${index} pref 5030"
+  "from 172.16.0.0/12 lookup ${index} pref 5040"
+  "from 192.168.0.0/16 lookup ${index} pref 5050"
   "nop pref 6000"
   "lookup main pref 7000"
-  "from all iif ${tun_device} lookup main suppress_prefixlength 0 pref 8000"
+  "from all iif ${device} lookup main suppress_prefixlength 0 pref 8000"
 )
   for rule in "${ipv4_rules[@]}"; do
     ip -4 rule "${action}" ${rule}
@@ -85,14 +85,14 @@ ipv4_rules=(
 
 ipv6_rules=(
   "iif lo goto 6000 pref 5000"
-  "iif ${tun_device} lookup main suppress_prefixlength 0 pref 5010"
-  "iif ${tun_device} goto 6000 pref 5020"
-  # "from 2001:db8::/32 lookup ${tun_table_index} pref 5030"
-  # "from fc00::/7 lookup ${tun_table_index} pref 5040"
-  # "from fd00::/8 lookup ${tun_table_index} pref 5050"
+  "iif ${device} lookup main suppress_prefixlength 0 pref 5010"
+  "iif ${device} goto 6000 pref 5020"
+  # "from 2001:db8::/32 lookup ${index} pref 5030"
+  # "from fc00::/7 lookup ${index} pref 5040"
+  # "from fd00::/8 lookup ${index} pref 5050"
   "nop pref 6000"
   "lookup main pref 7000"
-  "from all iif ${tun_device} lookup main suppress_prefixlength 0 pref 8000"
+  "from all iif ${device} lookup main suppress_prefixlength 0 pref 8000"
 )
   for rule in "${ipv6_rules[@]}"; do
     ip -6 rule "${action}" ${rule}
@@ -106,8 +106,8 @@ local action=$2
 if [[ "${action}" == "-I" ]]; then
     ${iptables} -N TUN_FORWARD 2>/dev/null
     ${iptables} -F TUN_FORWARD 2>/dev/null
-    ${iptables} "${action}" TUN_FORWARD -i "${tun_device}" -j ACCEPT
-    ${iptables} "${action}" TUN_FORWARD -o "${tun_device}" -j ACCEPT
+    ${iptables} "${action}" TUN_FORWARD -i "${device}" -j ACCEPT
+    ${iptables} "${action}" TUN_FORWARD -o "${device}" -j ACCEPT
     ${iptables} "${action}" FORWARD -j TUN_FORWARD
 elif [[ "${action}" == "-D" ]]; then
     ${iptables} "${action}" FORWARD -j TUN_FORWARD
@@ -122,7 +122,7 @@ if [[ "${iptables}" == "iptables" ]]; then
     iptables -t nat -N TUN_POSTROUTING 2>/dev/null
     iptables -t nat -F TUN_POSTROUTING 2>/dev/null
     iptables -t nat "${action}" TUN_PREROUTING -p udp --dport 53 -j DNAT --to-destination 1.1.1.1:53
-    iptables -t nat "${action}" TUN_POSTROUTING -o "${tun_device}" -j MASQUERADE
+    iptables -t nat "${action}" TUN_POSTROUTING -o "${device}" -j MASQUERADE
     iptables -t nat "${action}" PREROUTING -j TUN_PREROUTING
     iptables -t nat "${action}" POSTROUTING -j TUN_POSTROUTING
   elif [[ "${action}" == "-D" ]]; then
@@ -200,4 +200,4 @@ description() {
   log Info "${symbol} ${network_mode} ${event}" >> "${scripts_dir}/run.log"
 }
 
-# 2024 9 30 23
+# 2024 1003 1710
