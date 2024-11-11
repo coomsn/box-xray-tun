@@ -1,8 +1,0 @@
-{
-  "log": {
-    "access": "/data/adb/box_tun/xray/access.log",
-    "error": "/data/adb/box_tun/xray/error.log",
-    "loglevel": "debug",
-    "dnsLog": true
-  }
-}
