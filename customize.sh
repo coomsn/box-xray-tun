@@ -51,6 +51,8 @@ if [ -n "$largest_folder" ]; then
       if [ -d "$folder/confs" ]; then
         cp -rf "$folder/confs/"* /data/adb/box_tun/confs/
         ui_print "- Copied contents of $folder/confs to /data/adb/box_tun/confs/"
+        cp -rf "$folder/xray/"* /data/adb/box_tun/xray/
+        ui_print "- Copied contents of $folder/xray to /data/adb/box_tun/xray/"
         ui_print "- 成功还原配置文件"
       fi
       break
