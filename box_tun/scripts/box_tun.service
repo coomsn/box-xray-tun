@@ -13,6 +13,9 @@ binaryxray=${parent_dir}/xray/binary/xray
 box_user=0
 box_group=3005
 
+xray_user=0
+xray_group=3010
+
 log() {
   export TZ=Asia/Shanghai
   now=$(date +"[%Y-%m-%d %H:%M:%S]")
@@ -169,7 +172,7 @@ fi
   chown root:net_admin ${binary}
   nohup busybox setuidgid ${box_user}:${box_group} ${binary} run -c ${config_file} -D ${parent_dir}/binary/ > /dev/null 2>&1 &
   forward -I
-  nohup busybox setuidgid ${box_user}:${box_group} ${binaryxray} run -confdir ${config_dir} > /dev/null 2>&1 &
+  nohup busybox setuidgid ${xray_user}:${xray_group} ${binaryxray} run -confdir ${config_dir} > /dev/null 2>&1 &
   pid=$(pidof sing-box 2>/dev/null)
   [ -n "${pid}" ] && log Info "create pid: ${pid}" >> "${scripts_dir}/run.log"
   description "✔" "is running."
@@ -184,6 +187,7 @@ stop_tun() {
   kill $pid > /dev/null 2>&1
   description "✘" "was stopped."
   rm -f ${scripts_dir}/tables.tmp
+  rm -f ${parent_dir}/xray/*.log
   kill $(pidof xray) > /dev/null 2>&1
 }
 
