@@ -12,5 +12,5 @@
 - 规则模板路径：`/box_tun/confs/rules/rules_template.json`
 
 ### 注意事项
-- 支持热点共享、usb电缆共享、网关代理。
+- 支持热点共享、usb共享、网关代理。
 - 支持黑白名单功能，需自行在 `.json` 文件中配置。
