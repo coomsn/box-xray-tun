@@ -1,0 +1,32 @@
+{
+  "routing": {
+    "domainStrategy": "IPIfNonMatch",
+    "domainMatcher": "linear",
+    "rules": [
+      {
+        "inboundTag": [
+          "in-1080"
+        ],
+        "outboundTag": "🐢doubleR"
+      },
+      {
+        "inboundTag": [
+          "in-2080"
+        ],
+        "outboundTag": "SG-arm1+arm1_1v2p"
+      },
+      {
+        "inboundTag": [
+          "in-3080"
+        ],
+        "outboundTag": "SG-amd+arm1_2v2p"
+      },
+      {
+        "inboundTag": [
+          "in-4080"
+        ],
+        "outboundTag": "xhttp-dualip-real+real"
+      }
+    ]
+  }
+}

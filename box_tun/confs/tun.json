@@ -7,7 +7,7 @@
     "servers": [
       {
         "tag": "Google",
-        "address": "h3://8.8.8.8/dns-query",
+        "address": "h3://8.8.4.4/dns-query",
         "detour": "🐢Oracle"
       },
       {
@@ -17,7 +17,7 @@
       },
       {
         "tag": "Alibaba",
-        "address": "h3://223.5.5.5/dns-query",
+        "address": "tls://223.5.5.5",
         "detour": "out-direct"
       },
       {
@@ -31,8 +31,21 @@
     ],
     "rules": [
       {
+        "domain": [
+          "cdn58.acstudycn.eu.org",
+          "cdn107.acstudycn.eu.org",
+          "icook.hk"
+        ],
+        "server": "Alibaba"
+      },
+      {
         "outbound": "any",
         "server": "Alibaba"
+      },
+      {
+        "rule_set": "adguard.srs",
+        "server": "Reject",
+        "disable_cache": true
       },
       {
         "rule_set": "geosite-category-ads-all",
@@ -49,7 +62,7 @@
       },
       {
         "domain_regex": "^.*mtalk[.]google[.]com$",
-        "server": "Cloudflare"
+        "server": "Alibaba"
       },
       {
         "domain_regex": [
@@ -91,44 +104,72 @@
       "inet4_range": "198.18.0.0/15",
       "inet6_range": "fc00::/18"
     },
-    "strategy": "prefer_ipv4",
+    "strategy": "prefer_ipv6",
     "independent_cache": true
   },
   "inbounds": [
     {
+      "type": "socks",
+      "tag": "socks-in",
+      "listen": "127.0.0.1",
+      "listen_port": 5353
+    },
+    {
       "type": "tun",
       "tag": "tun-in",
       "interface_name": "tun0",
-      "mtu": 1492,
+      "mtu": 1400,
       "auto_route": true,
       "strict_route": true,
-      "stack": "system",
-      "sniff": true,
-      "sniff_override_destination": false,
-      "exclude_package": [
-        "com.ss.android.ugc.aweme",
-        "com.cebbank.mobile.cemb",
-        "com.sankuai.meituan",
-        "com.eg.android.AlipayGphone",
-        "com.ss.android.article.lite",
-        "com.tencent.mm",
-        "com.tencent.mobileqq",
-        "com.netease.l10",
-        "com.heytap.music",
-        "com.finshell.wallet",
-        "cmb.pb",
-        "com.MobileTicket",
-        "tv.danmaku.bili",
-        "com.baidu.baidutranslate",
-        "com.taobao.taobao",
-        "com.baidu.homework",
-        "com.ss.android.article.video",
-        "com.jingdong.app.mall",
-        "com.sankuai.meituan.takeoutnew",
-        "com.autonavi.minimap"
+      "endpoint_independent_nat": true,
+      "address": [
+        "172.18.0.1/30",
+        "fdfe:dcba:9876::1/126"
       ],
-      "inet4_address": "172.16.0.1/30",
-      "inet6_address": "fd00::1/126"
+      "route_exclude_address": [/*xray节点使用到的服务器ip均放到此处排除*/
+        "127.0.0.0/16",
+        "fc00::/7",
+        "168.138.170.58/32",
+        "138.2.83.107/32",
+        "146.235.16.222/32",
+        "213.35.97.236/32",
+        "129.150.50.129/32",
+        "146.56.128.39/32",
+        "152.70.244.79/32"
+      ],
+      "include_package": [/*自行添加白名单app*/
+        "org.mozilla.firefox",
+        "com.zhiliaoapp.musically",
+        "app.rvx.android.youtube",
+        "io.github.huskydg.magisk",
+        "app.revanced.android.gms",
+        "app.revanced.android.youtube",
+        "com.twitter.android",
+        "com.android.vending",
+        "com.google.ar.core",
+        "vn.innoloop.VOALearningEnglish",
+        "com.google.android.gms",
+        "com.android.chrome",
+        "com.google.android.googlequicksearchbox",
+        "com.google.android.apps.photos",
+        "com.google.android.printservice.recommendation",
+        "org.mozilla.firefox",
+        "com.termux",
+        "com.microsoft.copilot",
+        "com.google.android.marvin.talkback",
+        "com.openai.chatgpt",
+        "com.google.android.inputmethod.latin",
+        "org.telegram.messenger",
+        "com.google.android.apps.authenticator2",
+        "com.google.android.youtube",
+        "com.google.android.gsf",
+        "com.reddit.frontpage",
+        "bin.mt.plus",
+        "bin.mt.termex",
+        "com.github.android"
+      ],
+      "stack": "system",
+      "sniff": true
     }
   ],
   "outbounds": [
@@ -136,16 +177,64 @@
       "type": "selector",
       "tag": "🐢Oracle",
       "outbounds": [
-        "m4_hys2",
-        "m5_hys2"
+        "m4_hys2_ssc",
+        "m5_hys2_ssc",
+        "🐢doubleR",
+        "SG-arm1+arm1_1v2p",
+        "SG-amd+arm1_2v2p",
+        "xhttp-dualip-real+real",
+        "warp"
       ],
-      "providers": "Reality",
+      "providers": [
+        "Clash",
+        "V2ray"
+      ],
       "interrupt_exist_connections": true
     },
     {
+      "type": "socks",/*以下四个socks为对接xray入站使用*/
+      "tag": "🐢doubleR",
+      "server": "127.0.0.1",
+      "server_port": 1080
+    },
+    {
+      "type": "socks",
+      "tag": "SG-arm1+arm1_1v2p",
+      "server": "127.0.0.1",
+      "server_port": 2080
+    },
+    {
+      "type": "socks",
+      "tag": "SG-amd+arm1_2v2p",
+      "server": "127.0.0.1",
+      "server_port": 3080
+    },
+    {
+      "type": "socks",
+      "tag": "xhttp-dualip-real+real",
+      "server": "127.0.0.1",
+      "server_port": 4080
+    },
+    {
+      "local_address": [
+        "172.16.0.2/32",
+        "2606:4700:110:8713:6bc4:8949:a855:5727/128"
+      ],
+      "mtu": 1280,
+      "peer_public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
+      "pre_shared_key": "",
+      "private_key": "QCfeVsZjjfDUIRkBS0xnvsfCsWMWngYHL/3vxDM5Oms=",
+      "reserved": "pz6D",
+      "server": "engage.cloudflareclient.com",
+      "server_port": 2408,
+      "type": "wireguard",
+      "tag": "warp",
+      "detour": "m4_hys2_ssc"
+    },
+    {
       "type": "hysteria2",
-      "tag": "m4_hys2",
-      "server": "m4.//.eu.org",
+      "tag": "m4_hys2_ssc",
+      "server": "m4.acstudycn.eu.org",
       "server_port": 8445,
       "up_mbps": 50,
       "down_mbps": 200,
@@ -156,21 +245,23 @@
       "password": "0ab68df6-bb92-4a79-b501-529b56018b5e",
       "tls": {
         "enabled": true,
-        "server_name": "m4.//.eu.org",
+        "server_name": "m4.acstudycn.eu.org",
+        "insecure": false,
         "alpn": "h3",
         "min_version": "1.3",
         "certificate_path": "/data/adb/box_tun/confs/certificate/accn.pem",
         "ech": {
           "enabled": true,
-          "pq_signature_schemes_enabled": true,
+          "pq_signature_schemes_enabled": false,
+          "dynamic_record_sizing_disabled": false,
           "config_path": "/data/adb/box_tun/confs/certificate/ech.config"
         }
       }
     },
     {
       "type": "hysteria2",
-      "tag": "m5_hys2",
-      "server": "m5.//.eu.org",
+      "tag": "m5_hys2_ssc",
+      "server": "m5.acstudycn.eu.org",
       "server_port": 8445,
       "up_mbps": 50,
       "down_mbps": 200,
@@ -181,13 +272,15 @@
       "password": "0ab68df6-bb92-4a79-b501-529b56018b5e",
       "tls": {
         "enabled": true,
-        "server_name": "m5.//.eu.org",
+        "server_name": "m5.acstudycn.eu.org",
+        "insecure": false,
         "alpn": "h3",
         "min_version": "1.3",
         "certificate_path": "/data/adb/box_tun/confs/certificate/accn.pem",
         "ech": {
           "enabled": true,
-          "pq_signature_schemes_enabled": true,
+          "pq_signature_schemes_enabled": false,
+          "dynamic_record_sizing_disabled": false,
           "config_path": "/data/adb/box_tun/confs/certificate/ech.config"
         }
       }
@@ -221,6 +314,28 @@
         "outbound": "out-dns"
       },
       {
+        "inbound": "socks-in",
+        "outbound": "out-dns"
+      },
+      {
+        "domain": [
+          "cdn58.acstudycn.eu.org",
+          "cdn107.acstudycn.eu.org",
+          "icook.hk"
+        ],
+        "outbound": "out-direct"
+      },
+      {
+        "domain_regex": [
+          "^.*mtalk[.]google[.]com$"
+        ],
+        "outbound": "out-direct"
+      },
+      {
+        "rule_set": "adguard.srs",
+        "outbound": "out-blackhole"
+      },
+      {
         "rule_set": "geosite-category-ads-all",
         "outbound": "out-blackhole"
       },
@@ -243,10 +358,6 @@
           "^.*[.]xn--ngstr-lra8j[.]com$"
         ],
         "outbound": "🐢Oracle"
-      },
-      {
-        "domain_regex": "^.*mtalk[.]google[.]com$",
-        "outbound": "out-direct"
       },
       {
         "rule_set": [
@@ -307,7 +418,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-facebook.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/facebook.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -316,7 +427,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-google.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/google.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -325,7 +436,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-google@cn.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/google@cn.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -334,7 +445,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-telegram.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/telegram.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -343,7 +454,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-twitter.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/twitter.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -352,7 +463,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-netflix.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/netflix.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -361,7 +472,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-tumblr.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/tumblr.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -370,7 +481,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-geolocation-!cn.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/geolocation-!cn.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -379,7 +490,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-steam.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/steam.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -388,7 +499,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-discord.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/discord.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -397,7 +508,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-openai.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/openai.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -406,7 +517,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-github.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/github.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -415,7 +526,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-microsoft.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/microsoft.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -424,7 +535,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-microsoft@cn.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/microsoft@cn.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -433,7 +544,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-category-ads-all.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/category-ads-all.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -442,7 +553,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-private.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/private.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -451,7 +562,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-youtube.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/youtube.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -460,7 +571,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-reddit.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/reddit.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -469,7 +580,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-bing.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/bing.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -478,7 +589,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-bing@cn.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/bing@cn.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -487,7 +598,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-cn.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/cn.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -496,7 +607,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-tld-cn.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/tld-cn.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -505,7 +616,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-netease.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/netease.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -514,7 +625,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-tencent.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/tencent.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -523,7 +634,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geosite-geolocation-cn.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/geolocation-cn.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -532,7 +643,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geoip-cn.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/cn.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -541,7 +652,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geoip-tw.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/tw.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -550,7 +661,7 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geoip-hk.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/hk.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
       },
       {
@@ -559,8 +670,14 @@
         "format": "binary",
         "path": "/data/adb/box_tun/confs/rules/geoip-telegram.srs",
         "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/telegram.srs",
-        "download_detour": "m4_hys2",
+        "download_detour": "m4_hys2_ssc",
         "update_interval": "24h0m0s"
+      },
+      {
+        "type": "local",
+        "tag": "adguard.srs",
+        "format": "binary",
+        "path": "/data/adb/box_tun/confs/rules/adguard.srs"
       }
     ],
     "final": "🐢Oracle",
@@ -570,8 +687,14 @@
   "outbound_providers": [
     {
       "type": "local",
-      "path": "/data/adb/box_tun/confs/providers/reality.txt",
-      "tag": "Reality",
+      "path": "/data/adb/box_tun/confs/providers/clash.txt",
+      "tag": "Clash",
+      "healthcheck_interval": "1h0m0s"
+    },
+    {
+      "type": "local",
+      "path": "/data/adb/box_tun/confs/providers/v2ray.txt",
+      "tag": "V2ray",
       "healthcheck_interval": "1h0m0s"
     }
   ],
@@ -580,10 +703,10 @@
       "enabled": true
     },
     "clash_api": {
-      "external_controller": "0.0.0.0:9090",
+      "external_controller": "[::]:9091",
       "external_ui": "/data/adb/box_tun/board",
       "external_ui_download_url": "https://github.com/MetaCubeX/Yacd-meta/archive/gh-pages.zip",
-      "external_ui_download_detour": "m4_hys2"
+      "external_ui_download_detour": "m4_hys2_ssc"
     }
   }
 }

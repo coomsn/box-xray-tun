@@ -6,6 +6,10 @@ export PATH="/data/adb/magisk:$PATH:/system/bin"
 
 config_file=${parent_dir}/confs/tun.json
 binary=${parent_dir}/binary/sing-box
+
+config_dir=${parent_dir}/xray/confs/
+binaryxray=${parent_dir}/xray/binary/xray
+
 box_user=0
 box_group=3005
 
@@ -53,7 +57,7 @@ local index=""
 if [ ! -f "${scripts_dir}/tables.tmp" ]; then
   device=$(awk -F'"' '/"interface_name"/ {print $4}' ${config_file})
   while [ -z "$index" ] && [ $retry_count -lt $max_retries ]; do
-    index=$(ip route show table all | grep -E "default dev ${device} table [0-9]" | head -n 1 | awk '{print $5}')
+    index=$(ip route show table all | grep -E "dev ${device} table [0-9]" | head -n 1 | awk '{print $5}')
     if [ -n "$index" ]; then
         break
     fi
@@ -165,6 +169,7 @@ fi
   chown root:net_admin ${binary}
   nohup busybox setuidgid ${box_user}:${box_group} ${binary} run -c ${config_file} -D ${parent_dir}/binary/ > /dev/null 2>&1 &
   forward -I
+  nohup busybox setuidgid ${box_user}:${box_group} ${binaryxray} run -confdir ${config_dir} > /dev/null 2>&1 &
   pid=$(pidof sing-box 2>/dev/null)
   [ -n "${pid}" ] && log Info "create pid: ${pid}" >> "${scripts_dir}/run.log"
   description "✔" "is running."
@@ -179,6 +184,7 @@ stop_tun() {
   kill $pid > /dev/null 2>&1
   description "✘" "was stopped."
   rm -f ${scripts_dir}/tables.tmp
+  kill $(pidof xray) > /dev/null 2>&1
 }
 
 # version
