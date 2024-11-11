@@ -1,3 +1,6 @@
+### 2024.11.11
+- 增加xray内核：`通过sing-box的webui切换使用仅xray支持的节点，如xhttp、splithttp`
+
 ### 文件路径
 - 配置文件路径：`/box_tun/confs/`
 - 自动备份路径：`/box_tun/`
