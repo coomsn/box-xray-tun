@@ -17,7 +17,7 @@
           "domain:icook.tw",
           "domain:chinaums.com",
           "domain:banjixiaoguanjia.com",
-          "regexp:.*mtalk\\.google\\.com$"
+          "geosite:googlefcm"
         ]
       }
     ],
