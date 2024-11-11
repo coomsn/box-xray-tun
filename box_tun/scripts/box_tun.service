@@ -172,6 +172,8 @@ fi
   chown root:net_admin ${binary}
   nohup busybox setuidgid ${box_user}:${box_group} ${binary} run -c ${config_file} -D ${parent_dir}/binary/ > /dev/null 2>&1 &
   forward -I
+  chmod +x ${binaryxray}
+  chown root:net_admin ${binaryxray}
   nohup busybox setuidgid ${xray_user}:${xray_group} ${binaryxray} run -confdir ${config_dir} > /dev/null 2>&1 &
   pid=$(pidof sing-box 2>/dev/null)
   [ -n "${pid}" ] && log Info "create pid: ${pid}" >> "${scripts_dir}/run.log"
