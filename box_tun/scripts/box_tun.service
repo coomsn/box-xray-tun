@@ -176,21 +176,25 @@ fi
   chown root:net_admin ${binaryxray}
   nohup busybox setuidgid ${xray_user}:${xray_group} ${binaryxray} run -confdir ${config_dir} > /dev/null 2>&1 &
   pid=$(pidof sing-box 2>/dev/null)
-  [ -n "${pid}" ] && log Info "create pid: ${pid}" >> "${scripts_dir}/run.log"
+  [ -n "${pid}" ] && log Info "add sing-box pid: ${pid}" >> "${scripts_dir}/run.log"
+  pid=$(pidof xray 2>/dev/null)
+  [ -n "${pid}" ] && log Info "add xray pid: ${pid}" >> "${scripts_dir}/run.log"
   description "✔" "is running."
   log Info "Create a new process $(pidof ${binary})" 
 }
 
 stop_tun() {
-  pid=$(pidof sing-box 2>/dev/null)
   log info "---goodbye---" > "${scripts_dir}/run.log"
   forward -D
-  [ -n "${pid}" ] && log Info "delete pid: ${pid}" >> "${scripts_dir}/run.log"
-  kill $pid > /dev/null 2>&1
+  pid=$(pidof sing-box 2>/dev/null)
+  [ -n "${pid}" ] && log Info "del sing-box pid: ${pid}" >> "${scripts_dir}/run.log"
+  pid=$(pidof xray 2>/dev/null)
+  [ -n "${pid}" ] && log Info "del xray pid: ${pid}" >> "${scripts_dir}/run.log"
   description "✘" "was stopped."
+  kill $(pidof sing-box) > /dev/null 2>&1
+  kill $(pidof xray) > /dev/null 2>&1
   rm -f ${scripts_dir}/tables.tmp
   rm -f ${parent_dir}/xray/*.log
-  kill $(pidof xray) > /dev/null 2>&1
 }
 
 # version
@@ -212,4 +216,4 @@ description() {
   log Info "${symbol} ${network_mode} ${event}" >> "${scripts_dir}/run.log"
 }
 
-# 2024 1112 0900
+# 2024 1111 1137
