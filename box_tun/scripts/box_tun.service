@@ -190,11 +190,11 @@ stop_tun() {
   [ -n "${pid}" ] && log Info "del sing-box pid: ${pid}" >> "${scripts_dir}/run.log"
   pid=$(pidof xray 2>/dev/null)
   [ -n "${pid}" ] && log Info "del xray pid: ${pid}" >> "${scripts_dir}/run.log"
-  description "✘" "was stopped."
   kill $(pidof sing-box) > /dev/null 2>&1
   kill $(pidof xray) > /dev/null 2>&1
   rm -f ${scripts_dir}/tables.tmp
   rm -f ${parent_dir}/xray/*.log
+  description "✘" "was stopped."
 }
 
 # version
