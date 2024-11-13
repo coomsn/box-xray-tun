@@ -4,10 +4,10 @@ scripts_dir=$(dirname ${scripts})
 parent_dir=$(dirname ${scripts_dir})
 export PATH="/data/adb/magisk:$PATH:/system/bin"
 
-config_file=${parent_dir}/confs/tun.json
-binary=${parent_dir}/binary/sing-box
+box_dir=${parent_dir}/confs
+binarybox=${parent_dir}/binary/sing-box
 
-config_dir=${parent_dir}/xray/confs/
+xray_dir=${parent_dir}/xray/confs
 binaryxray=${parent_dir}/xray/binary/xray
 
 box_user=0
@@ -58,7 +58,7 @@ local max_retries=5
 local retry_count=0
 local index=""
 if [ ! -f "${scripts_dir}/tables.tmp" ]; then
-  device=$(awk -F'"' '/"interface_name"/ {print $4}' ${config_file})
+  device=$(awk -F'"' '/"interface_name"/ {print $4; exit}' ${box_dir}/*.json)
   while [ -z "$index" ] && [ $retry_count -lt $max_retries ]; do
     index=$(ip route show table all | grep -E "dev ${device} table [0-9]" | head -n 1 | awk '{print $5}')
     if [ -n "$index" ]; then
@@ -163,24 +163,24 @@ iptables_rules "ip6tables" "${action}"
 }
 
 start_tun() {
-if pidof "${binary}" >/dev/null 2>&1; then
-    log Info "Close existing processes $(pidof ${binary})" 
+if pidof "${binarybox}" >/dev/null 2>&1; then
+    log Info "Close existing processes $(pidof ${binarybox})" 
     stop_tun
 fi
   log info "---welcome---" > "${scripts_dir}/run.log"
-  chmod +x ${binary}
-  chown root:net_admin ${binary}
-  nohup busybox setuidgid ${box_user}:${box_group} ${binary} run -c ${config_file} -D ${parent_dir}/binary/ > /dev/null 2>&1 &
+  chmod +x ${binarybox}
+  chown root:net_admin ${binarybox}
+  nohup busybox setuidgid ${box_user}:${box_group} ${binarybox} run -C ${box_dir} -D ${parent_dir}/binary/ > /dev/null 2>&1 &
   forward -I
   chmod +x ${binaryxray}
   chown root:net_admin ${binaryxray}
-  nohup busybox setuidgid ${xray_user}:${xray_group} ${binaryxray} run -confdir ${config_dir} > /dev/null 2>&1 &
+  nohup busybox setuidgid ${xray_user}:${xray_group} ${binaryxray} run -confdir ${xray_dir} > /dev/null 2>&1 &
   pid=$(pidof sing-box 2>/dev/null)
   [ -n "${pid}" ] && log Info "add sing-box pid: ${pid}" >> "${scripts_dir}/run.log"
   pid=$(pidof xray 2>/dev/null)
   [ -n "${pid}" ] && log Info "add xray pid: ${pid}" >> "${scripts_dir}/run.log"
   description "✔" "is running."
-  log Info "Create a new process $(pidof ${binary})" 
+  log Info "Create a new process $(pidof ${binarybox})"
 }
 
 stop_tun() {
@@ -199,8 +199,8 @@ stop_tun() {
 
 # version
 version() {
-if [ -f "${binary}" ]; then
-  version=$(${binary} version | head -n 1 | awk '{print $3}')
+if [ -f "${binarybox}" ]; then
+  version=$(${binarybox} version | head -n 1 | awk '{print $3}')
 fi
 }
 # description
@@ -210,7 +210,7 @@ description() {
   local network_mode="tun"
   version
   prop_file="/data/adb/modules/box_tun-module/module.prop"
-  core_name="${binary##*/}"
+  core_name="${binarybox##*/}"
   current_time=$(date "+[%m.%d %H:%M]")
   sed -i "/description/c\description=${current_time} ${symbol} ${core_name} ${version} ${network_mode} ${event}" "${prop_file}"
   log Info "${symbol} ${network_mode} ${event}" >> "${scripts_dir}/run.log"
