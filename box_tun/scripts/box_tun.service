@@ -193,7 +193,7 @@ stop_tun() {
   kill $(pidof sing-box) > /dev/null 2>&1
   kill $(pidof xray) > /dev/null 2>&1
   rm -f ${scripts_dir}/tables.tmp
-  rm -f ${parent_dir}/xray/*.log
+  find "${parent_dir}" -type f -name "*.log" ! -name "run.log" -exec rm -f {} +
   description "✘" "was stopped."
 }
 
@@ -216,4 +216,4 @@ description() {
   log Info "${symbol} ${network_mode} ${event}" >> "${scripts_dir}/run.log"
 }
 
-# 2024 1111 1137
+# 2024 1115 2300
