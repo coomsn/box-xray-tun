@@ -1,7 +1,7 @@
 id=box_tun-module
 name=box_tun4magisk
 version=v1.2
-versionCode=2024111208
+versionCode=2024111524
 author=Tony
-description=Created on 11 12, 2024.
+description=Created on 11 15, 2024.
 updateJson=https://github.com/coomsn/box_tun4magisk_public/raw/main/update.json
