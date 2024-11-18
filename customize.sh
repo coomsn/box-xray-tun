@@ -1,7 +1,7 @@
 #!/system/bin/sh
-#####################
-# box_tun Customization
-#####################
+########################
+# box_tun Customization#
+########################
 SKIPUNZIP=1
 ASH_STANDALONE=1
 unzip_path="/data/adb"
