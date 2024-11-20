@@ -224,7 +224,7 @@ description() {
 # version2.0
 
 # 定义白名单包名数组
-package_list=(
+white_package_list=(
   org.mozilla.firefox
   com.zhiliaoapp.musically
   app.rvx.android.youtube
@@ -263,7 +263,7 @@ whitelist_uid() {
     rm "$scripts_dir/uids.list"
   fi
 
-  for package_name in "${package_list[@]}"; do
+  for package_name in "${white_package_list[@]}"; do
     uid=$(busybox awk -v package="$package_name" '$1 ~ package {print $2}' /data/system/packages.list)
     if [ ! -z "$uid" ]; then
       echo "$uid" >> "$scripts_dir/uids.list"
