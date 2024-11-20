@@ -225,7 +225,6 @@ description() {
 
 # 定义白名单包名数组
 white_package_list=(
-  org.mozilla.firefox
   com.zhiliaoapp.musically
   app.rvx.android.youtube
   io.github.huskydg.magisk
