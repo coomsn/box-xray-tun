@@ -225,36 +225,36 @@ description() {
 
 # 定义白名单包名数组
 white_package_list=(
-  com.zhiliaoapp.musically
-  app.rvx.android.youtube
-  io.github.huskydg.magisk
   app.revanced.android.gms
   app.revanced.android.youtube
-  com.twitter.android
-  com.android.vending
-  com.google.ar.core
-  vn.innoloop.VOALearningEnglish
-  com.google.android.gms
-  com.android.chrome
-  com.google.android.googlequicksearchbox
-  com.google.android.apps.photos
-  com.google.android.printservice.recommendation
-  org.mozilla.firefox
-  com.termux
-  com.microsoft.copilot
-  com.google.android.marvin.talkback
-  com.openai.chatgpt
-  com.google.android.inputmethod.latin
-  org.telegram.messenger.web
-  org.telegram.messenger
-  com.google.android.apps.authenticator2
-  com.google.android.youtube
-  com.google.android.gsf
-  com.reddit.frontpage
+  app.rvx.android.youtube
   bin.mt.plus
   bin.mt.termex
+  com.android.chrome
+  com.android.vending
   com.github.android
+  com.google.android.apps.authenticator2
+  com.google.android.apps.photos
+  com.google.android.gms
+  com.google.android.googlequicksearchbox
+  com.google.android.gsf
+  com.google.android.inputmethod.latin
+  com.google.android.marvin.talkback
+  com.google.android.printservice.recommendation
+  com.google.android.youtube
+  com.google.ar.core
+  com.microsoft.copilot
+  com.openai.chatgpt
+  com.reddit.frontpage
+  com.termux
+  com.twitter.android
+  com.zhiliaoapp.musically
+  io.github.huskydg.magisk
+  org.mozilla.firefox
+  org.telegram.messenger
+  org.telegram.messenger.web
   org.thunderdog.challegram
+  vn.innoloop.VOALearningEnglish
 )
 
 whitelist_uid() {
