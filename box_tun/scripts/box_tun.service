@@ -183,11 +183,13 @@ fi
   [ -n "${pid}" ] && log Info "add xray pid: ${pid}" >> "${scripts_dir}/run.log"
   description "✔" "is running."
   log Info "Create a new process $(pidof ${bin_box})"
+  whitelist_rules add
 }
 
 stop_tun() {
   log info "---goodbye---" > "${scripts_dir}/run.log"
   forward -D
+  whitelist_rules del
   pid=$(pidof sing-box 2>/dev/null)
   [ -n "${pid}" ] && log Info "del sing-box pid: ${pid}" >> "${scripts_dir}/run.log"
   pid=$(pidof xray 2>/dev/null)
@@ -195,6 +197,7 @@ stop_tun() {
   kill $(pidof sing-box) > /dev/null 2>&1
   kill $(pidof xray) > /dev/null 2>&1
   rm -f ${scripts_dir}/tables.tmp
+  rm -f ${scripts_dir}/*.list
   find "${parent_dir}" -type f -name "*.log" ! -name "run.log" -exec rm -f {} +
   description "✘" "was stopped."
 }
@@ -219,3 +222,95 @@ description() {
 }
 
 # version2.0
+
+# 定义白名单包名数组
+package_list=(
+  org.mozilla.firefox
+  com.zhiliaoapp.musically
+  app.rvx.android.youtube
+  io.github.huskydg.magisk
+  app.revanced.android.gms
+  app.revanced.android.youtube
+  com.twitter.android
+  com.android.vending
+  com.google.ar.core
+  vn.innoloop.VOALearningEnglish
+  com.google.android.gms
+  com.android.chrome
+  com.google.android.googlequicksearchbox
+  com.google.android.apps.photos
+  com.google.android.printservice.recommendation
+  org.mozilla.firefox
+  com.termux
+  com.microsoft.copilot
+  com.google.android.marvin.talkback
+  com.openai.chatgpt
+  com.google.android.inputmethod.latin
+  org.telegram.messenger.web
+  org.telegram.messenger
+  com.google.android.apps.authenticator2
+  com.google.android.youtube
+  com.google.android.gsf
+  com.reddit.frontpage
+  bin.mt.plus
+  bin.mt.termex
+  com.github.android
+  org.thunderdog.challegram
+)
+
+whitelist_uid() {
+  if [ -f "$scripts_dir/uids.list" ]; then
+    rm "$scripts_dir/uids.list"
+  fi
+
+  for package_name in "${package_list[@]}"; do
+    uid=$(busybox awk -v package="$package_name" '$1 ~ package {print $2}' /data/system/packages.list)
+    if [ ! -z "$uid" ]; then
+      echo "$uid" >> "$scripts_dir/uids.list"
+    fi
+  done
+}
+
+whitelist_array() {
+  start=0
+  end=999999
+
+  if [ -f "$scripts_dir/uids.list" ]; then
+    uids=$(sort -n "$scripts_dir/uids.list")
+  else
+    echo "$start-$end"
+    return
+  fi
+
+  previous=$start
+  for uid in $uids; do
+    if [ "$((uid - 1))" -ge "$previous" ]; then
+      echo "$previous-$((uid - 1))"
+    fi
+    previous=$((uid + 1))
+  done
+
+  if [ "$previous" -le "$end" ]; then
+    echo "$previous-$end"
+  fi
+}
+
+whitelist_rules() {
+local action=${1}
+whitelist_uid
+
+ranges=()
+
+output=$(whitelist_array)
+
+for range in $output; do
+  ranges+=("$range")
+done
+
+for range in "${ranges[@]}"; do
+  echo "${action} from all uidrange ${range} priority 9000 goto 9010"
+  ip -4 rule ${action} from all uidrange ${range} priority 9000 goto 9010
+  ip -6 rule ${action} from all uidrange ${range} priority 9000 goto 9010
+done
+}
+
