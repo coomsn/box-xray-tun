@@ -1,4 +1,4 @@
-name: release, tun with network sharing, v1.0
+name: release v2.0
 
 on:
   workflow_dispatch:
