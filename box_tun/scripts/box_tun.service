@@ -297,3 +297,4 @@ for range in "${ranges[@]}"; do
   ip -6 rule ${action} from all uidrange ${range} priority 9000 goto 9010
 done
 }
+# {version:2.0}
