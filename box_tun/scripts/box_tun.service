@@ -248,7 +248,7 @@ whitelist_uid() {
     uid=$(busybox awk -v package="$package_name" '$1 ~ package {print $2}' /data/system/packages.list)
     if [ ! -z "$uid" ]; then
       echo "$uid" >> "$scripts_dir/uids.list"
-      echo "$uid:$package_name" >> "$scripts_dir/uids1.list"
+      # echo "$uid:$package_name" >> "$scripts_dir/uids1.list"
     fi
   done
   sort -n "$scripts_dir/uids.list" | uniq > "$scripts_dir/uids.list.tmp"
