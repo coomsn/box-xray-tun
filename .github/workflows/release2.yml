@@ -1,4 +1,4 @@
-name: release v2.0
+name: box_tun4magisk_v2.0
 
 on:
   workflow_dispatch:
