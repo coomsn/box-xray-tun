@@ -2,7 +2,7 @@
 scripts=$(realpath $0)
 scripts_dir=$(dirname ${scripts})
 parent_dir=$(dirname ${scripts_dir})
-export PATH="/data/adb/ksu/bin:/data/adb/magisk:$PATH:/system/bin"
+export PATH="/data/adb/ap/bin:/data/adb/ksu/bin:/data/adb/magisk:$PATH"
 
 box_dir=${parent_dir}/confs
 bin_box=${parent_dir}/binary/sing-box
@@ -237,6 +237,8 @@ white_package_list=(
   qt.fceimbhnru.jud
   com.topjohnwu.magisk
   me.weishu.kernelsu
+  by.green.tuber
+  me.bmax.apatch
 )
 
 whitelist_uid() {
