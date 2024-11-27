@@ -239,6 +239,7 @@ white_package_list=(
   me.weishu.kernelsu
   by.green.tuber
   me.bmax.apatch
+  com.google.android.apps.translate
 )
 
 whitelist_uid() {
