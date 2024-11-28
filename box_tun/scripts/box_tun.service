@@ -148,6 +148,7 @@ if pidof "${bin_box}" >/dev/null 2>&1; then
     stop_tun
 fi
   log info "---welcome---" > "${scripts_dir}/run.log"
+  log info "slot$(getprop ro.boot.slot_suffix)" >> "${scripts_dir}/run.log"
   chmod +x ${bin_box}
   chown root:net_admin ${bin_box}
   nohup busybox setuidgid ${box_user}:${box_group} ${bin_box} run -C ${box_dir} -D ${parent_dir}/binary/ > /dev/null 2>&1 &
@@ -168,6 +169,7 @@ fi
 
 stop_tun() {
   log info "---goodbye---" > "${scripts_dir}/run.log"
+  log info "slot$(getprop ro.boot.slot_suffix)" >> "${scripts_dir}/run.log"
   forward -D
   whitelist_rules del
   pid=$(pidof sing-box 2>/dev/null)
