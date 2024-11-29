@@ -31,4 +31,4 @@ start_inotifyd() {
 
 start_inotifyd
 
-# version2.0
+# {version:2.1}
