@@ -4,7 +4,7 @@ scripts=$(realpath $0)
 scripts_dir=$(dirname ${scripts})
 module_dir="/data/adb/modules/box_tun-module"
 
-source ${scripts_dir}/box_tun.service
+source ${scripts_dir}/box-xray-tun.service
 if [ ! -f "${module_dir}/disable" ]; then
   log Info "The process is starting, please wait"
 else
