@@ -196,7 +196,7 @@ description() {
   local event=$2
   local network_mode="tun"
   version
-  prop_file="/data/adb/modules/box_tun-module/module.prop"
+  prop_file="/data/adb/modules/box-xray-tun/module.prop"
   core_name="${bin_box##*/}"
   current_time=$(date "+[%m.%d %H:%M]")
   sed -i "/description/c\description=${current_time} ${symbol} ${core_name} ${version} ${network_mode} ${event}" "${prop_file}"
