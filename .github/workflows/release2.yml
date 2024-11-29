@@ -1,4 +1,4 @@
-name: box_tun4magisk_v2.0
+name: box-xray-tun-v2.0
 
 on:
   workflow_dispatch:
@@ -28,7 +28,7 @@ jobs:
           echo '{
             "version": "'"${version}"'",
             "versionCode": "'"${versionCode}"'",
-            "zipUrl": "https://github.com/coomsn/${{ env.REPO_NAME }}/releases/download/'"${version}"'/box_tun_'${version}'.zip",
+            "zipUrl": "https://github.com/coomsn/${{ env.REPO_NAME }}/releases/download/'"${version}"'/box-xray-tun-'${version}'.zip",
             "changelog": "https://github.com/coomsn/${{ env.REPO_NAME }}/raw/main/CHANGELOG.md"
           }' > update.json
 
@@ -49,8 +49,8 @@ jobs:
       - name: Extract version from filename
         id: extract_version
         run: |
-          zip_file=$(ls box_tun_v*.zip)
-          version=$(echo "$zip_file" | sed -E 's/box_tun_v(.*).zip/v\1/')
+          zip_file=$(ls box-xray-tun-v*.zip)
+          version=$(echo "$zip_file" | sed -E 's/box-xray-tun-v(.*).zip/v\1/')
           echo "VERSION=${version}" >> $GITHUB_ENV
 
       # 读取 CHANGELOG.md 文件作为发布说明
@@ -68,7 +68,7 @@ jobs:
         if: ${{ success() }}
         with:
           tag_name: ${{ env.VERSION }}
-          files: box_tun_v*.zip
+          files: box-xray-tun-v*.zip
           body: ${{ env.RELEASE_NOTES }}
           prerelease: false
           generate_release_notes: false

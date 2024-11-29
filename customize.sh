@@ -7,8 +7,8 @@ ASH_STANDALONE=1
 unzip_path="/data/adb"
 
 # Define the paths of source folder and the destination folder
-source_folder="/data/adb/box_tun"
-destination_folder="/data/adb/box_tun$(date +%Y%m%d_%H%M%S)"
+source_folder="/data/adb/box-xray-tun"
+destination_folder="/data/adb/box-xray-tun$(date +%Y%m%d_%H%M%S)"
 
 # Check if the source folder exists
 if [ -d "$source_folder" ]; then
@@ -24,16 +24,16 @@ fi
 
 ui_print "- 正在释放文件"
 unzip -o "$ZIPFILE" 'box_tun/*' -d $unzip_path >&2
-unzip -j -o "$ZIPFILE" 'box_tun_service.sh' -d /data/adb/service.d >&2
+unzip -j -o "$ZIPFILE" 'box-xray-tun.sh' -d /data/adb/service.d >&2
 unzip -j -o "$ZIPFILE" 'uninstall.sh' -d $MODPATH >&2
 unzip -j -o "$ZIPFILE" "module.prop" -d $MODPATH >&2
 ui_print "- 正在设置权限"
 set_perm_recursive $MODPATH 0 0 0755 0644
-set_perm_recursive /data/adb/box_tun/ 0 3005 0755 0644
-set_perm_recursive /data/adb/box_tun/scripts/ 0 3005 0755 0700
-set_perm /data/adb/service.d/box_tun_service.sh 0 0 0755
+set_perm_recursive /data/adb/box-xray-tun/ 0 3005 0755 0644
+set_perm_recursive /data/adb/box-xray-tun/scripts/ 0 3005 0755 0700
+set_perm /data/adb/service.d/box-xray-tun.sh 0 0 0755
 set_perm $MODPATH/uninstall.sh 0 0 0755
-set_perm /data/adb/box_tun/scripts/ 0 0 0755
+set_perm /data/adb/box-xray-tun/scripts/ 0 0 0755
 ui_print "- 完成权限设置"
 ui_print "- 还原配置文件"
 
@@ -42,17 +42,17 @@ largest_folder=$(find /data/adb -maxdepth 1 -type d -name 'box_tun[0-9]*' | sed 
 
 # 使用这个最大的数字，重新匹配回原始文件夹名
 if [ -n "$largest_folder" ]; then
-  for folder in /data/adb/box_tun*; do
+  for folder in /data/adb/box-xray-tun*; do
     clean_name=$(echo "$folder" | sed 's/.*box_tun//' | sed 's/_//g')
     if [ "$clean_name" = "$largest_folder" ]; then
       ui_print "- Found folder: $folder"
       
-      # 覆盖 /data/adb/box_tun/confs 目录中的内容
+      # 覆盖 /data/adb/box-xray-tun/confs 目录中的内容
       if [ -d "$folder/confs" ]; then
-        cp -rf "$folder/confs/"* /data/adb/box_tun/confs/
-        ui_print "- Copied contents of $folder/confs to /data/adb/box_tun/confs/"
-        cp -rf "$folder/xray/"* /data/adb/box_tun/xray/
-        ui_print "- Copied contents of $folder/xray to /data/adb/box_tun/xray/"
+        cp -rf "$folder/confs/"* /data/adb/box-xray-tun/confs/
+        ui_print "- Copied contents of $folder/confs to /data/adb/box-xray-tun/confs/"
+        cp -rf "$folder/xray/"* /data/adb/box-xray-tun/xray/
+        ui_print "- Copied contents of $folder/xray to /data/adb/box-xray-tun/xray/"
         ui_print "- 成功还原配置文件"
       fi
       break
