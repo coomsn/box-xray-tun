@@ -1,7 +1,7 @@
-id=box_tun-module
-name=box_tun4magisk
+id=box-xray-tun
+name=Box&Xray Tun
 version=v2.0
-versionCode=20241126
+versionCode=20241129
 author=Tony
-description=Created on 11 26, 2024.
+description=Created on 11 29, 2024.
 updateJson=https://github.com/coomsn/box-xray-tun/raw/main/update.json

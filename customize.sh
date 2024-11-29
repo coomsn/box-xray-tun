@@ -1,7 +1,5 @@
 #!/system/bin/sh
-########################
-# box_tun Customization#
-########################
+
 SKIPUNZIP=1
 ASH_STANDALONE=1
 unzip_path="/data/adb"
@@ -23,7 +21,7 @@ else
 fi
 
 ui_print "- 正在释放文件"
-unzip -o "$ZIPFILE" 'box_tun/*' -d $unzip_path >&2
+unzip -o "$ZIPFILE" 'box-xray-tun/*' -d $unzip_path >&2
 unzip -j -o "$ZIPFILE" 'box-xray-tun.sh' -d /data/adb/service.d >&2
 unzip -j -o "$ZIPFILE" 'uninstall.sh' -d $MODPATH >&2
 unzip -j -o "$ZIPFILE" "module.prop" -d $MODPATH >&2
@@ -38,12 +36,12 @@ ui_print "- 完成权限设置"
 ui_print "- 还原配置文件"
 
 # 找到文件夹对应的最大的数字
-largest_folder=$(find /data/adb -maxdepth 1 -type d -name 'box_tun[0-9]*' | sed 's/.*box_tun//' | sed 's/_//g' | sort -nr | head -n 1)
+largest_folder=$(find /data/adb -maxdepth 1 -type d -name 'box-xray-tun[0-9]*' | sed 's/.*box-xray-tun//' | sed 's/_//g' | sort -nr | head -n 1)
 
 # 使用这个最大的数字，重新匹配回原始文件夹名
 if [ -n "$largest_folder" ]; then
   for folder in /data/adb/box-xray-tun*; do
-    clean_name=$(echo "$folder" | sed 's/.*box_tun//' | sed 's/_//g')
+    clean_name=$(echo "$folder" | sed 's/.*box-xray-tun//' | sed 's/_//g')
     if [ "$clean_name" = "$largest_folder" ]; then
       ui_print "- Found folder: $folder"
       
