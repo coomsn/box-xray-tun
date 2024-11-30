@@ -2,7 +2,10 @@
 clear
 scripts=$(realpath $0)
 scripts_dir=$(dirname ${scripts})
+parent_dir=$(dirname ${scripts_dir})
 module_dir="/data/adb/modules/box-xray-tun"
+# Environment variable settings
+export PATH="/data/adb/ap/bin:/data/adb/ksu/bin:/data/adb/magisk:$PATH"
 
 source ${scripts_dir}/box-xray-tun.service
 if [ ! -f "${module_dir}/disable" ]; then
@@ -11,12 +14,11 @@ else
   log Warn "Please turn on the mask switch"
 fi
 
-# environment variables
-export PATH="/data/adb/ap/bin:/data/adb/ksu/bin:/data/adb/magisk:$PATH"
-
 # Check if the disable file does not exist, then run the proxy
 if [ ! -f "${module_dir}/disable" ]; then
   start_tun # >/dev/null 2>&1
+  else
+  log Warn "module is not enabled"  
 fi
 
 start_inotifyd() {
