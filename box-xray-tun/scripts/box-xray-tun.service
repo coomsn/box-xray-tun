@@ -147,6 +147,7 @@ if pidof "${bin_box}" >/dev/null 2>&1; then
     log Info "Close existing processes $(pidof ${bin_box})" 
     stop_tun
 fi
+if [ -f "${bin_box}" ]; then
   log info "---welcome---" > "${scripts_dir}/run.log"
   log info "slot$(getprop ro.boot.slot_suffix)" >> "${scripts_dir}/run.log"
   chmod +x ${bin_box}
@@ -166,6 +167,11 @@ fi
   description "✔" "is running."
   log Info "Create a new process $(pidof ${bin_box})"
   whitelist_rules add
+else
+  log Error "Binary ${bin_box} not found"
+  am start -a android.intent.action.VIEW -n com.jozein.xedgepro/.ui.ActivityPerformAction --ei __0 111 --es __1 "${bin_box##*/} not found" >/dev/null 2>&1
+  exit 1
+fi
 }
 
 stop_tun() {
