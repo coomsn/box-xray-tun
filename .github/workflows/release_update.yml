@@ -61,12 +61,12 @@ jobs:
       # 删除旧的 Release 和 Tag
       - name: Delete existing release and tag
         run: |
-          # 获取发布的 release_id
+          # 获取发布的 release_id (包括草稿)
           release_id=$(gh api -H "Accept: application/vnd.github+json" \
             /repos/${{ github.repository }}/releases \
             | jq '.[] | select(.tag_name == env.VERSION) | .id')
 
-          # 如果找到匹配的 release_id，则删除该 release
+          # 如果找到匹配的 release_id，则删除该 release (无论是否为草稿)
           if [ -n "$release_id" ]; then
             gh api -X DELETE /repos/${{ github.repository }}/releases/$release_id
             echo "Deleted existing release with ID: $release_id"
