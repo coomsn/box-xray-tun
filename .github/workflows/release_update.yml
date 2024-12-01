@@ -74,15 +74,4 @@ jobs:
             echo "Deleted existing tag: ${{ env.VERSION }}"
           fi
 
-      # 上传新的 release
-      - name: Upload release
-        uses: softprops/action-gh-release@v1
-        if: ${{ success() }}
-        with:
-          tag_name: ${{ env.VERSION }}
-          files: box-xray-tun-v*.zip
-          body: ${{ env.RELEASE_NOTES }}
-          prerelease: false
-          draft: false  # 确保发布不是草稿
-          overwrite: true  # 确保覆盖已有发布
-          generate_release_notes: false
+
