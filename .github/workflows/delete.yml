@@ -10,6 +10,11 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v3
 
+      - name: Set up GitHub CLI
+        run: |
+          echo "Setting up GitHub CLI..."
+          gh auth login --with-token < ${{ secrets.GITHUB_TOKEN }}
+
       - name: Get release ID for version v2.1 (including drafts)
         id: get_release
         run: |
