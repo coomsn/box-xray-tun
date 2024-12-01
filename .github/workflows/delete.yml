@@ -1,0 +1,41 @@
+name: Delete Release and Tag
+
+on:
+  workflow_dispatch:
+
+jobs:
+  delete-release-and-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Get release ID for version v2.1 (including drafts)
+        id: get_release
+        run: |
+          echo "Fetching releases..."
+          RELEASE_ID=$(gh release list --json tagName,id --jq '.[] | select(.tagName=="v2.1") | .id' || echo "Release not found")
+          echo "Release ID: $RELEASE_ID"
+          echo "RELEASE_ID=$RELEASE_ID" >> $GITHUB_ENV
+
+      - name: Get tag ID for version v2.1
+        id: get_tag
+        run: |
+          echo "Fetching tags..."
+          TAG_EXISTS=$(gh tag list | grep -w "v2.1" || echo "Tag not found")
+          echo "Tag: $TAG_EXISTS"
+          echo "TAG_EXISTS=$TAG_EXISTS" >> $GITHUB_ENV
+
+      - name: Delete release v2.1 if exists
+        if: ${{ env.RELEASE_ID != 'Release not found' }}
+        run: |
+          echo "Deleting release v2.1..."
+          gh release delete v2.1 --yes
+        continue-on-error: true
+
+      - name: Delete tag v2.1 if exists
+        if: ${{ env.TAG_EXISTS != 'Tag not found' }}
+        run: |
+          echo "Deleting tag v2.1..."
+          git tag -d v2.1
+          git push origin :refs/tags/v2.1
