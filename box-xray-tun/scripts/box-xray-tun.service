@@ -4,10 +4,10 @@ scripts_dir=$(dirname ${scripts})
 parent_dir=$(dirname ${scripts_dir})
 export PATH="/data/adb/ap/bin:/data/adb/ksu/bin:/data/adb/magisk:$PATH"
 
-box_dir=${parent_dir}/confs
+box_confs_dir=${parent_dir}/confs
 bin_box=${parent_dir}/binary/sing-box
 
-xray_dir=${parent_dir}/xray/confs
+xray_confs_dir=${parent_dir}/xray/confs
 bin_xray=${parent_dir}/xray/binary/xray
 
 box_user=0
@@ -58,7 +58,7 @@ local max_retries=5
 local retry_count=0
 local index=""
 if [ ! -f "${scripts_dir}/tables.tmp" ]; then
-  device=$(awk -F'"' '/"interface_name"/ {print $4; exit}' ${box_dir}/*.json)
+  device=$(awk -F'"' '/"interface_name"/ {print $4; exit}' ${box_confs_dir}/*.json)
   while [ -z "$index" ] && [ $retry_count -lt $max_retries ]; do
     index=$(ip route show table all | grep -E "dev ${device} table [0-9]" | head -n 1 | awk '{print $5}')
     if [ -n "$index" ]; then
@@ -152,13 +152,11 @@ if [ -f "${bin_box}" ]; then
   log info "slot$(getprop ro.boot.slot_suffix)" >> "${scripts_dir}/run.log"
   chmod +x ${bin_box}
   chown root:net_admin ${bin_box}
-  nohup busybox setuidgid ${box_user}:${box_group} ${bin_box} run -C ${box_dir} -D ${parent_dir}/binary/ > /dev/null 2>&1 &
+  nohup busybox setuidgid ${box_user}:${box_group} ${bin_box} run -C ${box_confs_dir} -D ${parent_dir}/binary/ > /dev/null 2>&1 &
   forward -I
   chmod +x ${bin_xray}
   chown root:net_admin ${bin_xray}
-  export XRAY_LOCATION_ASSET="${parent_dir}/xray/binary"
-  export XRAY_LOCATION_CONFDIR="${parent_dir}/xray/confs"
-  nohup busybox setuidgid ${xray_user}:${xray_group} ${bin_xray} > /dev/null 2>&1 &
+  nohup busybox setuidgid ${xray_user}:${xray_group} ${bin_xray} run -confdir ${xray_confs_dir} > /dev/null 2>&1 &
   pid=$(pidof sing-box 2>/dev/null)
   [ -n "${pid}" ] && log Info "add sing-box pid: ${pid}" >> "${scripts_dir}/run.log"
   pid=$(pidof xray 2>/dev/null)
@@ -311,3 +309,12 @@ for range in "${ranges[@]}"; do
 done
 }
 # {version:2.1}
+
+case "$1" in
+    enable)
+        start_tun
+        ;;
+    disable)
+        stop_tun
+        ;;
+esac
