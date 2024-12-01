@@ -14,15 +14,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository
       - uses: actions/checkout@v3
 
+      # Step 2: Set up GitHub token for authentication
       - name: Set up GitHub token
         run: echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
 
+      # Step 3: Get the repository name
       - name: Get repository name
         id: get_repo_name
         run: echo "REPO_NAME=$(basename $(git rev-parse --show-toplevel))" >> $GITHUB_ENV
 
+      # Step 4: Update update.json file
       - name: Update update.json
         run: |
           version=$(grep -oP 'version=\K[^ ]+' module.prop)
@@ -35,6 +39,7 @@ jobs:
             "changelog": "https://github.com/coomsn/${{ env.REPO_NAME }}/raw/main/CHANGELOG.md"
           }' > update.json
 
+      # Step 5: Commit and push update.json
       - name: Commit and push update.json
         run: |
           git config --local user.name "coomsn"
@@ -43,9 +48,11 @@ jobs:
           git commit -m "Update update.json for version $(grep -oP 'version=\K[^ ]+' module.prop)" || true
           git push -f origin main
 
+      # Step 6: Run the build.sh script
       - name: Run build.sh
         run: sh build.sh
 
+      # Step 7: Extract version from the filename of the zip file
       - name: Extract version from filename
         id: extract_version
         run: |
@@ -53,6 +60,7 @@ jobs:
           version=$(echo "$zip_file" | sed -E 's/box-xray-tun-v(.*).zip/v\1/')
           echo "VERSION=${version}" >> $GITHUB_ENV
 
+      # Step 8: Read release notes from CHANGELOG.md
       - name: Read release notes from CHANGELOG.md
         id: get_release_notes
         run: |
@@ -61,21 +69,21 @@ jobs:
           echo "$RELEASE_NOTES" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      # 删除旧的 Release 和 Tag
+      # Step 9: Delete existing release and tag
       - name: Delete existing release and tag
         run: |
-          release_id=$(gh api -H "Accept: application/vnd.github+json" /repos/${{ github.repository }}/releases | jq '.[] | select(.tag_name == env.VERSION) | .id' || echo "Release not found")
-          if [ -n "$release_id" ]; then
-            gh api -X DELETE /repos/${{ github.repository }}/releases/$release_id
+          release_id=$(gh api -H "Accept: application/vnd.github+json" "/repos/${{ github.repository }}/releases" | jq '.[] | select(.tag_name == "v${{ env.VERSION }}") | .id' || echo "Release not found")
+          if [ "$release_id" != "Release not found" ]; then
+            gh api -X DELETE "/repos/${{ github.repository }}/releases/$release_id"
             echo "Deleted existing release with ID: $release_id"
           fi
-          # 删除已有的 tag
+          # Delete existing tag
           if git ls-remote --tags origin | grep -q "refs/tags/v${{ env.VERSION }}$"; then
             git push origin :refs/tags/v${{ env.VERSION }}
             echo "Deleted existing tag: v${{ env.VERSION }}"
           fi
 
-      # 上传新的 release
+      # Step 10: Upload the new release
       - name: Upload release
         uses: softprops/action-gh-release@v1
         if: ${{ success() }}
@@ -84,6 +92,6 @@ jobs:
           files: box-xray-tun-v*.zip
           body: ${{ env.RELEASE_NOTES }}
           prerelease: false
-          draft: false  # 确保发布不是草稿
-          overwrite: true  # 确保覆盖已有发布
+          draft: false  # Ensure the release is not a draft
+          overwrite: true  # Ensure the existing release is overwritten
           generate_release_notes: false
