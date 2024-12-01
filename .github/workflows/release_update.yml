@@ -61,26 +61,28 @@ jobs:
       # 删除旧的 Release 和 Tag
       - name: Delete existing release and tag
         run: |
-          # 获取发布的 release_id (包括草稿)
           release_id=$(gh api -H "Accept: application/vnd.github+json" \
             /repos/${{ github.repository }}/releases \
             | jq '.[] | select(.tag_name == env.VERSION) | .id')
-
-          # 输出获取到的 release_id 用于调试
-          echo "release_id: $release_id"
-
-          # 如果找到匹配的 release_id，则删除该 release (无论是否为草稿)
           if [ -n "$release_id" ]; then
             gh api -X DELETE /repos/${{ github.repository }}/releases/$release_id
             echo "Deleted existing release with ID: $release_id"
-          else
-            echo "No release found for version ${{ env.VERSION }}"
           fi
-
           # 删除已有的 tag
           if git ls-remote --tags origin | grep -q "refs/tags/${{ env.VERSION }}$"; then
             git push origin :refs/tags/${{ env.VERSION }}
             echo "Deleted existing tag: ${{ env.VERSION }}"
-          else
-            echo "No tag found for version ${{ env.VERSION }}"
           fi
+
+      # 上传新的 release
+      - name: Upload release
+        uses: softprops/action-gh-release@v1
+        if: ${{ success() }}
+        with:
+          tag_name: ${{ env.VERSION }}
+          files: box-xray-tun-v*.zip
+          body: ${{ env.RELEASE_NOTES }}
+          prerelease: false
+          draft: false  # 确保发布不是草稿
+          overwrite: true  # 确保覆盖已有发布
+          generate_release_notes: false
