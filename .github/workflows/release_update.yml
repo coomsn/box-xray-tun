@@ -66,6 +66,9 @@ jobs:
             /repos/${{ github.repository }}/releases \
             | jq '.[] | select(.tag_name == env.VERSION) | .id')
 
+          # 输出获取到的 release_id 用于调试
+          echo "release_id: $release_id"
+
           # 如果找到匹配的 release_id，则删除该 release (无论是否为草稿)
           if [ -n "$release_id" ]; then
             gh api -X DELETE /repos/${{ github.repository }}/releases/$release_id
