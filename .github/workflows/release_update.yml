@@ -74,14 +74,6 @@ jobs:
             echo "Deleted existing tag: ${{ env.VERSION }}"
           fi
 
-      - name: Read release notes from CHANGELOG.md
-        id: get_release_notes
-        run: |
-          RELEASE_NOTES=$(cat CHANGELOG.md)
-          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
-          echo "$RELEASE_NOTES" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
-
       - name: Upload release
         uses: softprops/action-gh-release@v1
         if: ${{ success() }}
