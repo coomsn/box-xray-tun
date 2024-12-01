@@ -62,20 +62,19 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       # 删除旧的 Release 和 Tag
-      - name: Delete existing release and tag
-        run: |
-          release_id=$(gh api -H "Accept: application/vnd.github+json" \
-            /repos/${{ github.repository }}/releases \
-            | jq '.[] | select(.tag_name == env.VERSION) | .id' || echo "Release not found")
-          if [ -n "$release_id" ]; then
-            gh api -X DELETE /repos/${{ github.repository }}/releases/$release_id
-            echo "Deleted existing release with ID: $release_id"
-          fi
-          # 删除已有的 tag
-          if git ls-remote --tags origin | grep -q "refs/tags/v${{ env.VERSION }}$"; then
-            git push origin :refs/tags/v${{ env.VERSION }}
-            echo "Deleted existing tag: v${{ env.VERSION }}"
-          fi
+- name: Delete existing release and tag
+  run: |
+    release_id=$(gh api -H "Accept: application/vnd.github+json" /repos/${{ github.repository }}/releases | jq '.[] | select(.tag_name == env.VERSION) | .id' || echo "Release not found")
+    if [ -n "$release_id" ]; then
+      gh api -X DELETE /repos/${{ github.repository }}/releases/$release_id
+      echo "Deleted existing release with ID: $release_id"
+    fi
+    # 删除已有的 tag
+    if git ls-remote --tags origin | grep -q "refs/tags/v${{ env.VERSION }}$"; then
+      git push origin :refs/tags/v${{ env.VERSION }}
+      echo "Deleted existing tag: v${{ env.VERSION }}"
+    fi
+
 
       # 上传新的 release
       - name: Upload release
