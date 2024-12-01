@@ -59,19 +59,29 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       # 删除旧的 Release 和 Tag
-      - name: Delete existing release and tag
+      - name: Delete existing release
         run: |
-          gh release delete ${{ env.VERSION }} -y || true
-          git tag -d ${{ env.VERSION }} || true
-          git push origin :refs/tags/${{ env.VERSION }} || true
+          release_id=$(gh api -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/releases \
+            | jq '.[] | select(.tag_name == env.VERSION) | .id')
+          if [ -n "$release_id" ]; then
+            gh api -X DELETE /repos/${{ github.repository }}/releases/$release_id
+            echo "Deleted existing release with ID: $release_id"
+          fi
+          # Delete the tag if it exists
+          if git ls-remote --tags origin | grep -q "refs/tags/${{ env.VERSION }}$"; then
+            git push origin :refs/tags/${{ env.VERSION }}
+            echo "Deleted existing tag: ${{ env.VERSION }}"
+          fi
 
-      # 创建全新的标签
-      - name: Create new tag
+      - name: Read release notes from CHANGELOG.md
+        id: get_release_notes
         run: |
-          git tag ${{ env.VERSION }}
-          git push origin ${{ env.VERSION }}
+          RELEASE_NOTES=$(cat CHANGELOG.md)
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+          echo "$RELEASE_NOTES" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
-      # 上传 ZIP 文件并创建全新的 Release
       - name: Upload release
         uses: softprops/action-gh-release@v1
         if: ${{ success() }}
@@ -80,6 +90,4 @@ jobs:
           files: box-xray-tun-v*.zip
           body: ${{ env.RELEASE_NOTES }}
           prerelease: false
-          draft: false
-          overwrite: true
           generate_release_notes: false
