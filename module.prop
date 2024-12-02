@@ -1,7 +1,7 @@
 id=box-xray-tun
 name=Box&Xray Tun
-version=v2.1
-versionCode=20241201
+version=v2.2
+versionCode=20241202
 author=Tony
-description=Created on 12 01, 2024.
+description=Created on 12 02, 2024.
 updateJson=https://github.com/coomsn/box-xray-tun/raw/main/update.json
