@@ -2,6 +2,7 @@
 scripts=$(realpath $0)
 scripts_dir=$(dirname ${scripts})
 parent_dir=$(dirname ${scripts_dir})
+
 export PATH="/data/adb/ap/bin:/data/adb/ksu/bin:/data/adb/magisk:$PATH"
 
 box_confs_dir=${parent_dir}/confs
@@ -173,6 +174,9 @@ fi
 }
 
 stop_tun() {
+  if ! pidof "${bin_box}" >/dev/null 2>&1; then
+      exit 1
+  fi
   log info "---goodbye---" > "${scripts_dir}/run.log"
   log info "slot$(getprop ro.boot.slot_suffix)" >> "${scripts_dir}/run.log"
   forward -D
