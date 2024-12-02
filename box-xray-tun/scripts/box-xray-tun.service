@@ -213,7 +213,7 @@ description() {
   log Info "${symbol} ${network_mode} ${event}" >> "${scripts_dir}/run.log"
 }
 
-# {version:2.1}
+# {version2.2}
 
 # 定义白名单包名数组
 white_package_list=(
@@ -312,7 +312,7 @@ for range in "${ranges[@]}"; do
   ip -6 rule ${action} from all uidrange ${range} priority 9000 goto 9010
 done
 }
-# {version:2.1}
+# {version2.2}
 
 case "$1" in
     enable)
