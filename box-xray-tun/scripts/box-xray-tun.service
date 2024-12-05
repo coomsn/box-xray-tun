@@ -186,12 +186,12 @@ stop_tun() {
   pid=$(pidof xray 2>/dev/null)
   [ -n "${pid}" ] && log Info "del xray pid: ${pid}" >> "${scripts_dir}/run.log"
   kill $(pidof sing-box) > /dev/null 2>&1
+  # description "✘" "was stopped."
   kill $(pidof xray) > /dev/null 2>&1
   am start -a android.intent.action.VIEW -n com.jozein.xedgepro/.ui.ActivityPerformAction --ei __0 111 --es __1 "代理已关闭" >/dev/null 2>&1
   rm -f ${scripts_dir}/tables.tmp
   rm -f ${scripts_dir}/*.list
   find "${parent_dir}" -type f -name "*.log" ! -name "run.log" -exec rm -f {} +
-  # description "✘" "was stopped."
 }
 
 # version

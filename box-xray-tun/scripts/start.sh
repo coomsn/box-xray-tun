@@ -2,6 +2,7 @@
 clear
 scripts=$(realpath $0)
 scripts_dir=$(dirname ${scripts})
+cd ${scripts_dir}
 module_dir="/data/adb/modules/box-xray-tun"
 # Environment variable settings
 export PATH="/data/adb/ap/bin:/data/adb/ksu/bin:/data/adb/magisk:$PATH"
